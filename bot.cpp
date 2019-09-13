@@ -6,6 +6,7 @@ enum state
 {   blackTownhall=-1, 
     whiteTownhall =1, 
     unoccupied=0,
+    null=INT_MIN,
     blackSoldier= -2,
     whiteSoldier=2
 };
@@ -29,6 +30,12 @@ class CannonBoard
 			}
 		}
 	}
+	state access(int i, int j)
+	{
+		if(i<8&&j<8)
+			return board[i][j];
+		return null;
+	}
 	bool move(pair<int, int> start, pair<int, int> end)
 	{
 		state dum=board[start.first][start.second];
@@ -41,7 +48,63 @@ class CannonBoard
 		board[end.first][end.second]=unoccupied;
 		return true;
 	}
+	int evaluate_white()
+	{
+		int soldiers=0, townhalls=0, cannons=0;
+		for(int i=0;i<8;i++){
+			for(int j=0;j<8;++j){
+				if(board[i][j]==whiteSoldier)
+					soldiers++;
+				else if(board[i][j]==whiteTownhall)
+					townhalls++;
+				if(access(i,j)==whiteSoldier&&access(i, j+1)==whiteSoldier&&access(i, j+2)==whiteSoldier)
+					cannons++;
+				if(access(i,j)==whiteSoldier&&access(i-1, j+1)==whiteSoldier&&access(i-2, j+2)==whiteSoldier)
+					cannons++;
+				if(access(i,j)==whiteSoldier&&access(i+1, j+1)==whiteSoldier&&access(i+2, j+2)==whiteSoldier)
+					cannons++;
+				if(access(i,j)==whiteSoldier&&access(i+1, j)==whiteSoldier&&access(i+2, j)==whiteSoldier)
+					cannons++;
 
+
+			}
+		}
+		int parameters[]={2,10,5};
+		return soldiers*parameters[0]+townhalls*parameters[1]+cannons*parameters[2];
+
+	}
+	int evaluate_black()
+	{
+		int soldiers=0, townhalls=0, cannons=0;
+		for(int i=0;i<8;i++){
+			for(int j=0;j<8;++j){
+				if(board[i][j]==blackSoldier)
+					soldiers++;
+				else if(board[i][j]==blackTownhall)
+					townhalls++;
+				if(access(i,j)==blackSoldier&&access(i, j+1)==blackSoldier&&access(i, j+2)==blackSoldier)
+					cannons++;
+				if(access(i,j)==blackSoldier&&access(i-1, j+1)==blackSoldier&&access(i-2, j+2)==blackSoldier)
+					cannons++;
+				if(access(i,j)==blackSoldier&&access(i+1, j+1)==blackSoldier&&access(i+2, j+2)==blackSoldier)
+					cannons++;
+				if(access(i,j)==blackSoldier&&access(i+1, j)==blackSoldier&&access(i+2, j)==blackSoldier)
+					cannons++;
+
+
+			}
+		}
+		int parameters[]={2,10,5};
+		return soldiers*parameters[0]+townhalls*parameters[1]+cannons*parameters[2];
+
+	}
+	int evaluate(bool white)
+	{
+		if(white)
+			return evaluate_white()-evaluate_black();
+		else
+			return evaluate_black()-evaluate_white();
+	}
 	void print()
 	{
 		for(int i=0;i<8;i++){
@@ -49,8 +112,9 @@ class CannonBoard
 				cout<<board[i][j]<<"\t";
 			}
 			cout<<endl;
-		}
+		}   
 	}
+
 };
 int main()
 {

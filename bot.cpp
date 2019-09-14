@@ -50,7 +50,7 @@ class CannonBoard
 	}
 	state access(int i, int j)
 	{
-		if(i<8&&j<8)
+		if(i<8&&j<8&&i>=0&&j>=0)
 			return board[i][j];
 		return null;
 	}
@@ -166,6 +166,7 @@ class CannonBoard
 		if(white){
 			for(int i=0;i<8;i++){
 				for(int j=0;j<8;++j){
+					cout<<"at "<<i<<", "<<j<<endl;
 					if(board[i][j]==whiteSoldier)
 					{
 						if(access(i+1, j)==unoccupied||access(i+1, j)==blackSoldier||access(i+1, j)==blackTownhall){
@@ -761,6 +762,55 @@ class CannonBoard
 	}
 
 };
+CannonBoard max_value_action(CannonBoard present, int depth, bool white);
+CannonBoard min_value_action(CannonBoard present, int depth, bool white);
+string transform_move(CannonBoard initial, CannonBoard final)
+{
+	string move="";
+
+
+	return move;
+}
+string select_move(CannonBoard present, string move, int depth, bool white)
+{
+
+	CannonBoard best_child= max_value_action(present, depth, white);
+	return transform_move(present, best_child);
+
+
+}
+CannonBoard max_value_action(CannonBoard present, int depth, bool white)
+{
+	vector<CannonBoard> successors = present.possibleStates(white);
+	int max=INT_MIN;
+	CannonBoard best_child;
+	for(auto it=successors.begin();it!=successors.end();it++){
+		int minVal=min_value_action(*it, depth-1, !white).evaluate(white);
+		if(minVal>max){
+			max=minVal;
+			best_child=*it;
+		}
+
+
+	}
+	return best_child;
+}
+CannonBoard min_value_action(CannonBoard present, int depth, bool white)
+{
+	vector<CannonBoard> successors = present.possibleStates(white);
+	int min=INT_MAX;
+	CannonBoard best_child;
+	for(auto it=successors.begin();it!=successors.end();it++){
+		int maxVal=min_value_action(*it, depth-1, !white).evaluate(white);
+		if(maxVal<min){
+			min=maxVal;
+			best_child=*it;
+		}
+
+
+	}
+	return best_child;
+}
 
 int main()
 {
@@ -782,10 +832,12 @@ int main()
 			ourBoard.shoot(init, target);
 		}
 		ourBoard.print();
-		vector<CannonBoard> possibles=possibleStates(ourBoard);
-		for(auto it=possibles.begin();it!=possible.end();it++){
+		vector<CannonBoard> possibles=ourBoard.possibleStates(true);
+		cout<<"Evealuations done"<<endl;
+		for(auto it=possibles.begin();it!=possibles.end();it++){
+			//it->print();
 			cout<<it->evaluate(true)<<endl;
-		}
+			}
 
 	}
 	

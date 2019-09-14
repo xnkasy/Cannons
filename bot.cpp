@@ -370,6 +370,10 @@ int main()
 			ourBoard.shoot(init, target);
 		}
 		ourBoard.print();
+		vector<CannonBoard> possibles=possibleStates(ourBoard);
+		for(auto it=possibles.begin();it!=possible.end();it++){
+			cout<<it->evaluate(true)<<endl;
+		}
 
 	}
 	

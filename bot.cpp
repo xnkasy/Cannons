@@ -209,16 +209,28 @@ class CannonBoard
 						}
 						//retreat
 						if(access(i+1, j)==blackSoldier||access(i+1, j+1)==blackSoldier||access(i+1, j-1)==blackSoldier||access(i, j+1)==blackSoldier||access(i, j-1)==blackSoldier){
+							//cout<<"retreat possible "<<endl;
+							if(i-2>=0){
 							temp1.move(make_pair(i, j), make_pair(i-2, j));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
+
+							}
+							if(i-2>=0&&j-2>=0){
 							temp1.move(make_pair(i, j), make_pair(i-2, j-2));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
+
+							}
+							if(i-2>=0&&j+2<8){
 							temp1.move(make_pair(i, j), make_pair(i-2, j+2));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
+
+							}
+							
 						}
+						//cout<<"at "<<i<<", "<<j<<"before cannons"<<endl;
 						//cannons
 						if(access(i, j+1)==whiteSoldier&&access(i, j+2)==whiteSoldier)
 						{
@@ -363,7 +375,7 @@ class CannonBoard
 								}								
 							}
 						}
-
+						//cout<<"at "<<i<<", "<<j<<"before retreat"<<endl;
 						if(access(i+1, j)==whiteSoldier&&access(i+2, j)==whiteSoldier)
 						{
 							if(access(i+3,j)==unoccupied)
@@ -659,7 +671,8 @@ class CannonBoard
 		}
 		if(samestate)
 			possibleBoards.push_back(temp1);
-		return possibleBoards;		
+		return possibleBoards;	
+		possibleBoards.clear();	
 	}
 
 	bool retreat_white(pair<int,int> start, pair<int, int> end)
@@ -727,7 +740,7 @@ class CannonBoard
 					cannons++;
 			}
 		}
-		int parameters[]={2,10,5};
+		int parameters[]={2,100,5};
 		return soldiers*parameters[0]+townhalls*parameters[1]+cannons*parameters[2];
 
 	}
@@ -752,7 +765,7 @@ class CannonBoard
 
 			}
 		}
-		int parameters[]={2,10,5};
+		int parameters[]={2,100,5};
 		return soldiers*parameters[0]+townhalls*parameters[1]+cannons*parameters[2];
 
 	}
@@ -1363,7 +1376,7 @@ CannonBoard max_value_action(CannonBoard present, int depth, bool white, int alp
 {
 	//cout<<"max value action before possibleStates with depth "<<depth<<endl;
 	vector<CannonBoard> successors = present.possibleStates(white);
-	//cout<<"min value action after possibleStates"<<endl;
+	//cout<<"min value action after possibleStates with depth "<<depth<<endl;
 	int max=INT_MIN;
 	CannonBoard best_child;
 	for(auto it=successors.begin();it!=successors.end();it++){
@@ -1393,7 +1406,7 @@ CannonBoard min_value_action(CannonBoard present, int depth, bool white, int alp
 {
 	//cout<<"min value action before possibleStates with depth "<<depth<<endl;
 	vector<CannonBoard> successors = present.possibleStates(white);
-	//cout<<"min value action after possibleStates"<<endl;
+	//cout<<"min value action after possibleStates with depth "<<depth<<endl;
 	int min=INT_MAX;
 	CannonBoard best_child;
 	for(auto it=successors.begin();it!=successors.end();it++){

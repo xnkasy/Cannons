@@ -741,7 +741,7 @@ class CannonBoard
 			}
 		}
 		int parameters[]={2,100,5};
-		return soldiers*parameters[0]+townhalls*parameters[1]+cannons*parameters[2];
+		return soldiers*parameters[0]-(2-townhalls)*parameters[1]+cannons*parameters[2];
 
 	}
 	int evaluate_black()
@@ -766,7 +766,7 @@ class CannonBoard
 			}
 		}
 		int parameters[]={2,100,5};
-		return soldiers*parameters[0]+townhalls*parameters[1]+cannons*parameters[2];
+		return soldiers*parameters[0]+(2-townhalls)*parameters[1]+cannons*parameters[2];
 
 	}
 	int evaluate(bool white)
@@ -1443,7 +1443,7 @@ void oneMove(string command, CannonBoard &board)
 		{
 			board.move(init, target);
 		}
-		else if(command[6]=='S')
+		else if(command[6]=='B')
 		{
 			board.shoot(init, target);
 		}

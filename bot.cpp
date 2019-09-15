@@ -771,7 +771,7 @@ class CannonBoard
 			}
 		}
 		
-		return soldiers*parameters[0]+(2-townhalls)*parameters[1]+cannons*parameters[2];
+		return soldiers*parameters[0]-(2-townhalls)*parameters[1]+cannons*parameters[2];
 
 	}
 	int evaluate(bool white)
@@ -1377,19 +1377,39 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 	}
 	return move;
 }		
-CannonBoard max_value_action(CannonBoard present, int depth, bool white, int alpha, int beta);
-CannonBoard min_value_action(CannonBoard present, int depth, bool white,  int alpha, int beta);
+int max_value_action(CannonBoard present, int depth, bool white, int alpha, int beta);
+int min_value_action(CannonBoard present, int depth, bool white,  int alpha, int beta);
 
 
 string select_move(CannonBoard present,  int depth, bool white)
 {
 
-	CannonBoard best_child= max_value_action(present, depth, white, INT_MIN, INT_MAX);
+	vector<CannonBoard> successors = present.possibleStates(white);
+	CannonBoard best_child;
+	int alpha=INT_MIN, beta=INT_MAX;
+	int max=INT_MIN;
+	for(auto it=successors.begin();it!=successors.end();it++){
+		int minVal;
+		minVal=min_value_action(*it, depth-1, white, alpha, beta);
+		alpha=minVal>alpha?minVal:alpha;
+		if (alpha>=beta){
+			cout<<"pruned max at depth "<<depth<<"with value "<<alpha<<" and "<<beta<<endl;
+			break;
+
+		} 
+		if(minVal>max){
+			max=minVal;
+			best_child=*it;
+		}
+	}
+	//CannonBoard best_child= max_value_action(present, depth, white, INT_MIN, INT_MAX);
+	cout<<"finally chosen max evaluation is "<<best_child.evaluate(white)<<endl;
+	best_child.print();
 	return transform_move(present, best_child, white);
 
 
 }
-CannonBoard max_value_action(CannonBoard present, int depth, bool white, int alpha, int beta)
+int max_value_action(CannonBoard present, int depth, bool white, int alpha, int beta)
 {
 	//cout<<"max value action before possibleStates with depth "<<depth<<endl;
 	vector<CannonBoard> successors = present.possibleStates(white);
@@ -1399,15 +1419,16 @@ CannonBoard max_value_action(CannonBoard present, int depth, bool white, int alp
 	for(auto it=successors.begin();it!=successors.end();it++){
 		int minVal;
 		if(depth==1){
+			//cout<<"went all the way max, value given is"<<it->evaluate(white)<<endl;
 			minVal=it->evaluate(white);//changed
 		}
 		else{
-			minVal=min_value_action(*it, depth-1, !white, alpha, beta).evaluate(white);
+			minVal=min_value_action(*it, depth-1, white, alpha, beta);
 		}
 		alpha=minVal>alpha?minVal:alpha;
 		if (alpha>=beta){
-			//cout<<"pruned at depth "<<depth<<endl;
-			return *it;
+			cout<<"pruned max at depth "<<depth<<"with value "<<alpha<<" and "<<beta<<endl;
+			return minVal;
 
 		} 
 		if(minVal>max){
@@ -1417,9 +1438,11 @@ CannonBoard max_value_action(CannonBoard present, int depth, bool white, int alp
 
 
 	}
-	return best_child;
+	cout<<"actual best max evaluation chosen is from depth "<<depth<<" is "<<best_child.evaluate_white()<<" and "<<best_child.evaluate_black()<<endl;
+	best_child.print();
+	return max;
 }
-CannonBoard min_value_action(CannonBoard present, int depth, bool white, int alpha, int beta)
+int min_value_action(CannonBoard present, int depth, bool white, int alpha, int beta)
 {
 	//cout<<"min value action before possibleStates with depth "<<depth<<endl;
 	vector<CannonBoard> successors = present.possibleStates(white);
@@ -1429,16 +1452,19 @@ CannonBoard min_value_action(CannonBoard present, int depth, bool white, int alp
 	for(auto it=successors.begin();it!=successors.end();it++){
 
 		int maxVal;
+		int temp;
 		if(depth==1){
+			//cout<<"went all the way min, value given is"<<it->evaluate(white)<<endl;
 			maxVal=it->evaluate(white);//changed
 		}
 		else{
-			maxVal=max_value_action(*it, depth-1, !white, alpha, beta).evaluate(white);
+			temp=max_value_action(*it, depth-1, white, alpha, beta);
+			maxVal=temp;
 		}
 		beta=maxVal<beta?maxVal:beta;
 		if (alpha>=beta){
-			//cout<<"pruned at depth "<<depth<<endl;
-			return *it;
+			cout<<"pruned min at depth "<<depth<<"with value "<<alpha<<" and "<<beta<<endl;
+			return maxVal;
 
 		} 
 		if(maxVal<min){
@@ -1448,7 +1474,9 @@ CannonBoard min_value_action(CannonBoard present, int depth, bool white, int alp
 
 
 	}
-	return best_child;
+	cout<<"actual best min evaluation chosen is from depth "<<depth<<" is "<<best_child.evaluate_white()<<" and "<<best_child.evaluate_black()<<endl;
+	best_child.print();
+	return min;
 }
 void oneMove(string command, CannonBoard &board)
 {

@@ -1390,21 +1390,17 @@ string select_move(CannonBoard present,  int depth, bool white)
 	int max=INT_MIN;
 	for(auto it=successors.begin();it!=successors.end();it++){
 		int minVal;
+		//cout<<"depth sent is "<<depth-1<<endl;
 		minVal=min_value_action(*it, depth-1, white, alpha, beta);
-		alpha=minVal>alpha?minVal:alpha;
-		if (alpha>=beta){
-			cout<<"pruned max at depth "<<depth<<"with value "<<alpha<<" and "<<beta<<endl;
-			break;
-
-		} 
+		cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`minval we got at depth "<<4-depth<<" was "<<minVal<<endl;
 		if(minVal>max){
 			max=minVal;
 			best_child=*it;
 		}
 	}
 	//CannonBoard best_child= max_value_action(present, depth, white, INT_MIN, INT_MAX);
-	cout<<"finally chosen max evaluation is "<<best_child.evaluate(white)<<endl;
-	best_child.print();
+	cout<<"finally chosen max evaluation is "<<max<<endl;
+	//best_child.print();
 	return transform_move(present, best_child, white);
 
 
@@ -1425,9 +1421,10 @@ int max_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 		else{
 			minVal=min_value_action(*it, depth-1, white, alpha, beta);
 		}
+		cout<<"minval we got in maximiser at depth "<<4-depth<<" was "<<minVal<<endl;
 		alpha=minVal>alpha?minVal:alpha;
 		if (alpha>=beta){
-			cout<<"pruned max at depth "<<depth<<"with value "<<alpha<<" and "<<beta<<endl;
+			//cout<<"pruned max at depth "<<depth<<"with value "<<alpha<<" and "<<beta<<endl;
 			return minVal;
 
 		} 
@@ -1438,8 +1435,10 @@ int max_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 
 
 	}
-	cout<<"actual best max evaluation chosen is from depth "<<depth<<" is "<<best_child.evaluate_white()<<" and "<<best_child.evaluate_black()<<endl;
-	best_child.print();
+	cout<<endl;
+	cout<<"~~~~~~~!!!!!!!!!!!minVal chosen by maximiser is "<<max<<endl<<endl;
+	//cout<<"actual best max evaluation chosen is from depth "<<depth<<" is "<<best_child.evaluate_white()<<" and "<<best_child.evaluate_black()<<endl;
+	//best_child.print();
 	return max;
 }
 int min_value_action(CannonBoard present, int depth, bool white, int alpha, int beta)
@@ -1461,9 +1460,10 @@ int min_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 			temp=max_value_action(*it, depth-1, white, alpha, beta);
 			maxVal=temp;
 		}
+		cout<<"~~~~~~~~maxval we got in minimiser at depth "<<4-depth<<" was "<<maxVal<<endl;
 		beta=maxVal<beta?maxVal:beta;
 		if (alpha>=beta){
-			cout<<"pruned min at depth "<<depth<<"with value "<<alpha<<" and "<<beta<<endl;
+			//cout<<"pruned min at depth "<<depth<<"with value "<<alpha<<" and "<<beta<<endl;
 			return maxVal;
 
 		} 
@@ -1474,8 +1474,13 @@ int min_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 
 
 	}
-	cout<<"actual best min evaluation chosen is from depth "<<depth<<" is "<<best_child.evaluate_white()<<" and "<<best_child.evaluate_black()<<endl;
-	best_child.print();
+	cout<<endl;
+	cout<<"maxVal chosen by minimiser  is "<<min<<endl<<endl;
+	if(depth==3){
+		//cout<<"======================================actual best min evaluation chosen is from depth "<<depth<<" is "<<best_child.evaluate_white()<<" and "<<best_child.evaluate_black()<<endl;
+	//best_child.print();
+	}
+	
 	return min;
 }
 void oneMove(string command, CannonBoard &board)
@@ -1504,7 +1509,7 @@ int main()
 		oneMove(command, ourBoard);
 		ourBoard.print();
 		string AImove;
-		AImove=select_move(ourBoard, 3, true);
+		AImove=select_move(ourBoard, 4, true);
 		cout<<"By AI "<<AImove<<endl;
 		oneMove(AImove, ourBoard);
 		ourBoard.print();

@@ -1376,7 +1376,7 @@ CannonBoard max_value_action(CannonBoard present, int depth, bool white, int alp
 		}
 		alpha=minVal>alpha?minVal:alpha;
 		if (alpha>=beta){
-			cout<<"pruned at depth "<<depth<<endl;
+			//cout<<"pruned at depth "<<depth<<endl;
 			return *it;
 
 		} 
@@ -1407,7 +1407,7 @@ CannonBoard min_value_action(CannonBoard present, int depth, bool white, int alp
 		}
 		beta=maxVal<beta?maxVal:beta;
 		if (alpha>=beta){
-			cout<<"pruned at depth "<<depth<<endl;
+			//cout<<"pruned at depth "<<depth<<endl;
 			return *it;
 
 		} 

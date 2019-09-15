@@ -462,15 +462,20 @@ class CannonBoard
 						}
 						//retreat
 						if(access(i-1, j)==whiteSoldier||access(i-1, j+1)==whiteSoldier||access(i-1, j-1)==whiteSoldier||access(i, j+1)==whiteSoldier||access(i, j-1)==whiteSoldier){
-							temp1.move(make_pair(i, j), make_pair(i+2, j));
-							possibleBoards.push_back(temp1);
-							temp1=temp2;
-							temp1.move(make_pair(i, j), make_pair(i+2, j-2));
-							possibleBoards.push_back(temp1);
-							temp1=temp2;
-							temp1.move(make_pair(i, j), make_pair(i+2, j+2));
-							possibleBoards.push_back(temp1);
-							temp1=temp2;
+							if(i+2<8){
+								temp1.move(make_pair(i, j), make_pair(i+2, j));							
+								possibleBoards.push_back(temp1);
+								temp1=temp2;
+							}
+							if(i+2<8&&j-2>=0){
+								temp1.move(make_pair(i, j), make_pair(i+2, j-2));
+								possibleBoards.push_back(temp1);
+								temp1=temp2;
+							}if(i+2<8&&j+2<8){
+								temp1.move(make_pair(i, j), make_pair(i+2, j+2));
+								possibleBoards.push_back(temp1);
+								temp1=temp2;
+							}
 						}
 						//cannon
 						if(access(i, j+1)==blackSoldier&&access(i, j+2)==blackSoldier)
@@ -835,18 +840,24 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 					}
 					//retreat
 					if(initial.access(i+1, j)==blackSoldier||initial.access(i+1, j+1)==blackSoldier||initial.access(i+1, j-1)==blackSoldier||initial.access(i, j+1)==blackSoldier||initial.access(i, j-1)==blackSoldier){
-						temp1.move(make_pair(i, j), make_pair(i-2, j));
-						if(temp1==final)
-							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i-2)+ (string)" "+to_string(j);
-						temp1=temp2;
-						temp1.move(make_pair(i, j), make_pair(i-2, j-2));
-						if(temp1==final)
-							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i-2)+ (string)" "+to_string(j-2);
-						temp1=temp2;
-						temp1.move(make_pair(i, j), make_pair(i-2, j+2));
-						if(temp1==final)
-							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i-2)+ (string)" "+to_string(j+2);
-						temp1=temp2;
+						if(i-2>=0){
+							temp1.move(make_pair(i, j), make_pair(i-2, j));
+							if(temp1==final)
+								return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i-2)+ (string)" "+to_string(j);
+							temp1=temp2;
+						}
+						if(i-2>=0&&j-2>0){
+							temp1.move(make_pair(i, j), make_pair(i-2, j-2));
+							if(temp1==final)
+								return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i-2)+ (string)" "+to_string(j-2);
+							temp1=temp2;
+						}
+						if(i-2>=0&&j+2<8){
+							temp1.move(make_pair(i, j), make_pair(i-2, j+2));
+							if(temp1==final)
+								return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i-2)+ (string)" "+to_string(j+2);
+							temp1=temp2;
+						}
 					}
 					//cannons
 					if(initial.access(i, j+1)==whiteSoldier&&initial.access(i, j+2)==whiteSoldier)
@@ -1115,18 +1126,24 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 					}
 					//retreat
 					if(initial.access(i-1, j)==whiteSoldier||initial.access(i-1, j+1)==whiteSoldier||initial.access(i-1, j-1)==whiteSoldier||initial.access(i, j+1)==whiteSoldier||initial.access(i, j-1)==whiteSoldier){
-						temp1.move(make_pair(i, j), make_pair(i+2, j));
-						if(temp1==final)
-							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+2)+ (string)" "+to_string(j);
-						temp1=temp2;
-						temp1.move(make_pair(i, j), make_pair(i+2, j-2));
-						if(temp1==final)
-							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+2)+ (string)" "+to_string(j-2);
-						temp1=temp2;
-						temp1.move(make_pair(i, j), make_pair(i+2, j+2));
-						if(temp1==final)
-							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+2)+ (string)" "+to_string(j+2);
-						temp1=temp2;
+						if(i+2<8){
+							temp1.move(make_pair(i, j), make_pair(i+2, j));
+							if(temp1==final)
+								return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+2)+ (string)" "+to_string(j);
+							temp1=temp2;
+						}
+						if(i+2<8&&j-2>=0){
+							temp1.move(make_pair(i, j), make_pair(i+2, j-2));
+							if(temp1==final)
+								return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+2)+ (string)" "+to_string(j-2);
+							temp1=temp2;
+						}
+						if(i+2<8&&j+2<8){
+							temp1.move(make_pair(i, j), make_pair(i+2, j+2));
+							if(temp1==final)
+								return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+2)+ (string)" "+to_string(j+2);
+							temp1=temp2;
+						}
 					}
 					//cannon
 					if(initial.access(i, j+1)==blackSoldier&&initial.access(i, j+2)==blackSoldier)
@@ -1382,7 +1399,7 @@ CannonBoard max_value_action(CannonBoard present, int depth, bool white, int alp
 	for(auto it=successors.begin();it!=successors.end();it++){
 		int minVal;
 		if(depth==1){
-			minVal=it->evaluate(!white);
+			minVal=it->evaluate(white);//changed
 		}
 		else{
 			minVal=min_value_action(*it, depth-1, !white, alpha, beta).evaluate(white);
@@ -1413,7 +1430,7 @@ CannonBoard min_value_action(CannonBoard present, int depth, bool white, int alp
 
 		int maxVal;
 		if(depth==1){
-			maxVal=it->evaluate(!white);
+			maxVal=it->evaluate(white);//changed
 		}
 		else{
 			maxVal=max_value_action(*it, depth-1, !white, alpha, beta).evaluate(white);
@@ -1463,8 +1480,6 @@ int main()
 		cout<<"By AI "<<AImove<<endl;
 		oneMove(AImove, ourBoard);
 		ourBoard.print();
-
-	}
-	
+	}	
 	return 0;
 }

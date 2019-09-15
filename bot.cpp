@@ -54,6 +54,19 @@ class CannonBoard
 			return board[i][j];
 		return null;
 	}
+	bool operator == ( CannonBoard &other)
+	{
+		for(int i=0;i<8;i++)
+		{
+			for(int j=0;j<8;++j)
+			{
+				if(other.access(i,j)!=access(i, j))
+					return false;
+			}
+		}	
+		return true;	
+
+	}
 	bool move(pair<int, int> start, pair<int, int> end)
 	{
 		state dum=board[start.first][start.second];
@@ -1342,7 +1355,7 @@ string select_move(CannonBoard present, string move, int depth, bool white)
 {
 
 	CannonBoard best_child= max_value_action(present, depth, white);
-	return transform_move(present, best_child);
+	return transform_move(present, best_child, white);
 
 
 }

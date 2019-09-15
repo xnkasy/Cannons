@@ -179,7 +179,7 @@ class CannonBoard
 		if(white){
 			for(int i=0;i<8;i++){
 				for(int j=0;j<8;++j){
-					cout<<"at "<<i<<", "<<j<<endl;
+					//cout<<"at "<<i<<", "<<j<<endl;
 					if(board[i][j]==whiteSoldier)
 					{
 						if(access(i+1, j)==unoccupied||access(i+1, j)==blackSoldier||access(i+1, j)==blackTownhall){
@@ -422,18 +422,18 @@ class CannonBoard
 				for(int j=0;j<8;++j){
 					if(board[i][j]==blackSoldier)
 					{
-						if(access(i+1, j)==unoccupied||access(i+1, j)==whiteSoldier||access(i+1, j)==whiteTownhall){
-							temp1.move(make_pair(i, j), make_pair(i+1, j));
+						if(access(i-1, j)==unoccupied||access(i-1, j)==whiteSoldier||access(i-1, j)==whiteTownhall){
+							temp1.move(make_pair(i, j), make_pair(i-1, j));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
 						}
-						if(access(i+1, j+1)==unoccupied||access(i+1, j+1)==whiteSoldier||access(i+1, j+1)==whiteTownhall){
-							temp1.move(make_pair(i, j), make_pair(i+1, j+1));
+						if(access(i-1, j+1)==unoccupied||access(i-1, j+1)==whiteSoldier||access(i-1, j+1)==whiteTownhall){
+							temp1.move(make_pair(i, j), make_pair(i-1, j+1));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
 						}
-						if(access(i+1, j-1)==unoccupied||access(i+1, j-1)==whiteSoldier||access(i+1, j-1)==whiteTownhall){
-							temp1.move(make_pair(i, j), make_pair(i+1, j-1));
+						if(access(i-1, j-1)==unoccupied||access(i-1, j-1)==whiteSoldier||access(i-1, j-1)==whiteTownhall){
+							temp1.move(make_pair(i, j), make_pair(i-1, j-1));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
 						}
@@ -775,8 +775,7 @@ class CannonBoard
 	}
 
 };
-CannonBoard max_value_action(CannonBoard present, int depth, bool white);
-CannonBoard min_value_action(CannonBoard present, int depth, bool white);
+
 
 
 string transform_move(CannonBoard initial, CannonBoard final, bool white)
@@ -788,7 +787,7 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 	if(white){
 		for(int i=0;i<8;i++){
 			for(int j=0;j<8;++j){
-				cout<<"at "<<i<<", "<<j<<endl;
+				//cout<<"at "<<i<<", "<<j<<endl;
 				if(initial.getBoard()[i][j]==whiteSoldier)
 				{
 					if(initial.access(i+1, j)==unoccupied||initial.access(i+1, j)==blackSoldier||initial.access(i+1, j)==blackTownhall){
@@ -1348,24 +1347,39 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 	}
 	return move;
 }		
+CannonBoard max_value_action(CannonBoard present, int depth, bool white, int alpha, int beta);
+CannonBoard min_value_action(CannonBoard present, int depth, bool white,  int alpha, int beta);
 
 
-
-string select_move(CannonBoard present, string move, int depth, bool white)
+string select_move(CannonBoard present,  int depth, bool white)
 {
 
-	CannonBoard best_child= max_value_action(present, depth, white);
+	CannonBoard best_child= max_value_action(present, depth, white, INT_MIN, INT_MAX);
 	return transform_move(present, best_child, white);
 
 
 }
-CannonBoard max_value_action(CannonBoard present, int depth, bool white)
+CannonBoard max_value_action(CannonBoard present, int depth, bool white, int alpha, int beta)
 {
+	//cout<<"max value action before possibleStates with depth "<<depth<<endl;
 	vector<CannonBoard> successors = present.possibleStates(white);
+	//cout<<"min value action after possibleStates"<<endl;
 	int max=INT_MIN;
 	CannonBoard best_child;
 	for(auto it=successors.begin();it!=successors.end();it++){
-		int minVal=min_value_action(*it, depth-1, !white).evaluate(white);
+		int minVal;
+		if(depth==1){
+			minVal=it->evaluate(!white);
+		}
+		else{
+			minVal=min_value_action(*it, depth-1, !white, alpha, beta).evaluate(white);
+		}
+		alpha=minVal>alpha?minVal:alpha;
+		if (alpha>=beta){
+			cout<<"pruned at depth "<<depth<<endl;
+			return *it;
+
+		} 
 		if(minVal>max){
 			max=minVal;
 			best_child=*it;
@@ -1375,13 +1389,28 @@ CannonBoard max_value_action(CannonBoard present, int depth, bool white)
 	}
 	return best_child;
 }
-CannonBoard min_value_action(CannonBoard present, int depth, bool white)
+CannonBoard min_value_action(CannonBoard present, int depth, bool white, int alpha, int beta)
 {
+	//cout<<"min value action before possibleStates with depth "<<depth<<endl;
 	vector<CannonBoard> successors = present.possibleStates(white);
+	//cout<<"min value action after possibleStates"<<endl;
 	int min=INT_MAX;
 	CannonBoard best_child;
 	for(auto it=successors.begin();it!=successors.end();it++){
-		int maxVal=min_value_action(*it, depth-1, !white).evaluate(white);
+
+		int maxVal;
+		if(depth==1){
+			maxVal=it->evaluate(!white);
+		}
+		else{
+			maxVal=max_value_action(*it, depth-1, !white, alpha, beta).evaluate(white);
+		}
+		beta=maxVal<beta?maxVal:beta;
+		if (alpha>=beta){
+			cout<<"pruned at depth "<<depth<<endl;
+			return *it;
+
+		} 
 		if(maxVal<min){
 			min=maxVal;
 			best_child=*it;
@@ -1391,6 +1420,21 @@ CannonBoard min_value_action(CannonBoard present, int depth, bool white)
 	}
 	return best_child;
 }
+void oneMove(string command, CannonBoard &board)
+{
+	if(command.length()<11)
+			return;
+		pair<int, int> init=make_pair((int)command[2]-48, (int)command[4]-48 );
+		pair<int, int> target=make_pair((int)command[8]-48, (int)command[10]-48 );
+		if(command[6]=='M')
+		{
+			board.move(init, target);
+		}
+		else if(command[6]=='S')
+		{
+			board.shoot(init, target);
+		}
+}
 
 int main()
 {
@@ -1399,25 +1443,13 @@ int main()
 	ourBoard.print();
 	while(true){
 		getline (cin, command); 
-		if(command.length()<11)
-			break;
-		pair<int, int> init=make_pair((int)command[2]-48, (int)command[4]-48 );
-		pair<int, int> target=make_pair((int)command[8]-48, (int)command[10]-48 );
-		if(command[6]=='M')
-		{
-			ourBoard.move(init, target);
-		}
-		else if(command[6]=='S')
-		{
-			ourBoard.shoot(init, target);
-		}
+		oneMove(command, ourBoard);
 		ourBoard.print();
-		vector<CannonBoard> possibles=ourBoard.possibleStates(true);
-		cout<<"Evealuations done"<<endl;
-		for(auto it=possibles.begin();it!=possibles.end();it++){
-			//it->print();
-			cout<<it->evaluate(true)<<endl;
-			}
+		string AImove;
+		AImove=select_move(ourBoard, 3, true);
+		cout<<"By AI "<<AImove<<endl;
+		oneMove(AImove, ourBoard);
+		ourBoard.print();
 
 	}
 	

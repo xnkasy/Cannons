@@ -764,13 +764,580 @@ class CannonBoard
 };
 CannonBoard max_value_action(CannonBoard present, int depth, bool white);
 CannonBoard min_value_action(CannonBoard present, int depth, bool white);
-string transform_move(CannonBoard initial, CannonBoard final)
+
+
+string transform_move(CannonBoard initial, CannonBoard final, bool white)
 {
 	string move="";
+	CannonBoard temp1=initial;
+	CannonBoard temp2=initial;
+	bool samestate=false;
+	if(white){
+		for(int i=0;i<8;i++){
+			for(int j=0;j<8;++j){
+				cout<<"at "<<i<<", "<<j<<endl;
+				if(initial.getBoard()[i][j]==whiteSoldier)
+				{
+					if(initial.access(i+1, j)==unoccupied||initial.access(i+1, j)==blackSoldier||initial.access(i+1, j)==blackTownhall){
+						temp1.move(make_pair(i, j), make_pair(i+1, j));
+						if(temp1==final)
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+1)+ (string)" "+to_string(j);
+						temp1=temp2;
+					}
+					if(initial.access(i+1, j+1)==unoccupied||initial.access(i+1, j+1)==blackSoldier||initial.access(i+1, j+1)==blackTownhall){
+						temp1.move(make_pair(i, j), make_pair(i+1, j+1));
+						if(temp1==final)
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+1)+ (string)" "+to_string(j+1);
+						temp1=temp2;
+					}
+					if(initial.access(i+1, j-1)==unoccupied||initial.access(i+1, j-1)==blackSoldier||initial.access(i+1, j-1)==blackTownhall){
+						temp1.move(make_pair(i, j), make_pair(i+1, j-1));
+						if(temp1==final)
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+1)+ (string)" "+to_string(j-1);
+						temp1=temp2;
+					}
+					if(initial.access(i, j+1)==blackSoldier||initial.access(i, j+1)==blackTownhall){
+						temp1.move(make_pair(i, j), make_pair(i, j+1));
+						if(temp1==final)
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i)+ (string)" "+to_string(j+1);
+						temp1=temp2;
+					}
+					if(initial.access(i, j-1)==blackSoldier||initial.access(i, j-1)==blackTownhall){
+						temp1.move(make_pair(i, j), make_pair(i, j-1));
+						if(temp1==final)
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i)+ (string)" "+to_string(j-1);
+						temp1=temp2;
+					}
+					//retreat
+					if(initial.access(i+1, j)==blackSoldier||initial.access(i+1, j+1)==blackSoldier||initial.access(i+1, j-1)==blackSoldier||initial.access(i, j+1)==blackSoldier||initial.access(i, j-1)==blackSoldier){
+						temp1.move(make_pair(i, j), make_pair(i-2, j));
+						if(temp1==final)
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i-2)+ (string)" "+to_string(j);
+						temp1=temp2;
+						temp1.move(make_pair(i, j), make_pair(i-2, j-2));
+						if(temp1==final)
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i-2)+ (string)" "+to_string(j-2);
+						temp1=temp2;
+						temp1.move(make_pair(i, j), make_pair(i-2, j+2));
+						if(temp1==final)
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i-2)+ (string)" "+to_string(j+2);
+						temp1=temp2;
+					}
+					//cannons
+					if(initial.access(i, j+1)==whiteSoldier&&initial.access(i, j+2)==whiteSoldier)
+					{
+						if(initial.access(i,j+3)==unoccupied)
+						{
+							temp1.move(make_pair(i, j), make_pair(i, j+3));
+							if(temp1==final)
+								return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i)+ (string)" "+to_string(j+3);
+							temp1=temp2;
+							if(initial.access(i,j+4)==blackSoldier||initial.access(i,j+4)==blackTownhall)
+							{
+								temp1.shoot(make_pair(i, j+2),make_pair(i,j+4));
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i)+ (string)" "+to_string(j+4);
+								temp1=temp2;
+							}
+							else if(initial.access(i,j+4)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i)+ (string)" "+to_string(j+4);
+								if(initial.access(i,j+5)==blackSoldier||initial.access(i,j+5)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i, j+2),make_pair(i,j+5));
+									if(temp1==final)
+										return (string)"C "+to_string(i)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i)+ (string)" "+to_string(j+5);
+									temp1=temp2;
+								}
+							}								
+						}
+						if(initial.access(i,j-1)==unoccupied)
+						{
+							temp1.move(make_pair(i, j+2), make_pair(i, j-1));
+							if(temp1==final)
+								return (string)"S "+to_string(i)+(string)" "+to_string(j+2)+ (string)" M "+to_string(i)+ (string)" "+to_string(j-1);
+							temp1=temp2;
+							if(initial.access(i,j-2)==blackSoldier||initial.access(i,j-2)==blackTownhall)
+							{
+								temp1.shoot(make_pair(i, j),make_pair(i,j-2));
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j-2);
+								temp1=temp2;
+							}
+							else if(initial.access(i,j-2)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j-2);
+								if(initial.access(i,j-3)==blackSoldier||initial.access(i,j-3)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i,j-3));
+									if(temp1==final)
+										return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j-3);
+									temp1=temp2;
+								}
+							}								
+						}
+					}
 
+					if(initial.access(i+1, j-1)==whiteSoldier&&initial.access(i+2, j-2)==whiteSoldier)
+					{
+						if(initial.access(i+3,j-3)==unoccupied)
+						{
+							temp1.move(make_pair(i, j), make_pair(i+3, j-3));
+							if(temp1==final)
+								return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+3)+ (string)" "+to_string(j-3);
+							temp1=temp2;
+							if(initial.access(i+4,j-4)==blackSoldier||initial.access(i+4,j-4)==blackTownhall)
+							{
+								temp1.shoot(make_pair(i+2, j-2),make_pair(i+4,j-4));
+								if(temp1==final)
+									return (string)"C "+to_string(i+2)+(string)" "+to_string(j-2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j-4);
+								temp1=temp2;
+							}
+							else if(initial.access(i+4,j-4)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"C "+to_string(i+2)+(string)" "+to_string(j-2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j-4);
+								if(initial.access(i+5,j-5)==blackSoldier||initial.access(i+5,j-5)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i+2, j-2),make_pair(i+5,j-5));
+									if(temp1==final)
+										return (string)"C "+to_string(i+2)+(string)" "+to_string(j-2)+ (string)" B "+to_string(i+5)+ (string)" "+to_string(j-5);
+									temp1=temp2;
+								}
+							}								
+						}
+						if(initial.access(i-1,j+1)==unoccupied)
+						{
+							temp1.move(make_pair(i+2, j-2), make_pair(i-1, j+1));
+							if(temp1==final)
+								return (string)"S "+to_string(i+2)+(string)" "+to_string(j-2)+ (string)" M "+to_string(i-1)+ (string)" "+to_string(j+1);
+							temp1=temp2;
+							if(initial.access(i-2,j+2)==blackSoldier||initial.access(i-2,j+2)==blackTownhall)
+							{
+								temp1.shoot(make_pair(i, j),make_pair(i-2,j+2));
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j+2);
+								temp1=temp2;
+							}
+							else if(initial.access(i-2,j+2)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j+2);
+								if(initial.access(i-3,j+3)==blackSoldier||initial.access(i-3,j+3)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-3,j+3));
+									if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-3)+ (string)" "+to_string(j+3);
+									temp1=temp2;
+								}
+							}								
+						}
+					}
 
+					if(initial.access(i+1, j+1)==whiteSoldier&&initial.access(i+2, j+2)==whiteSoldier)
+					{
+						if(initial.access(i+3,j+3)==unoccupied)
+						{
+							temp1.move(make_pair(i, j), make_pair(i+3, j+3));
+							if(temp1==final)
+								return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+3)+ (string)" "+to_string(j+3);
+							temp1=temp2;
+							if(initial.access(i+4,j+4)==blackSoldier||initial.access(i+4,j+4)==blackTownhall)
+							{
+								temp1.shoot(make_pair(i+2, j+2),make_pair(i+2,j+4));
+								if(temp1==final)
+									return (string)"C "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+2)+ (string)" "+to_string(j+4);
+								temp1=temp2;
+							}
+							else if(initial.access(i+4,j+4)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"C "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j+4);
+								if(initial.access(i+5,j+5)==blackSoldier||initial.access(i+5,j+5)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i+2, j+2),make_pair(i+5,j+5));
+									if(temp1==final)
+										return (string)"C "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+5)+ (string)" "+to_string(j+5);
+									temp1=temp2;
+								}
+							}								
+						}
+						if(initial.access(i-1,j-1)==unoccupied)
+						{
+							temp1.move(make_pair(i+2, j+2), make_pair(i-1, j-1));
+							if(temp1==final)
+								return (string)"S "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" M "+to_string(i-1)+ (string)" "+to_string(j-1);
+							temp1=temp2;
+							if(initial.access(i-2,j-2)==blackSoldier||initial.access(i-2,j-2)==blackTownhall)
+							{
+								temp1.shoot(make_pair(i, j),make_pair(i-2,j-2));
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j-2);
+								temp1=temp2;
+							}
+							else if(initial.access(i-2,j-2)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j);
+								if(initial.access(i-3,j-3)==blackSoldier||initial.access(i-3,j-3)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-3,j-3));
+									if(temp1==final)
+										return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-3)+ (string)" "+to_string(j-3);
+									temp1=temp2;
+								}
+							}								
+						}
+					}
+
+					if(initial.access(i+1, j)==whiteSoldier&&initial.access(i+2, j)==whiteSoldier)
+					{
+						if(initial.access(i+3,j)==unoccupied)
+						{
+							temp1.move(make_pair(i, j), make_pair(i+3, j));
+							if(temp1==final)
+								return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+3)+ (string)" "+to_string(j);
+							temp1=temp2;
+							if(initial.access(i+4,j)==blackSoldier||initial.access(i+4,j)==blackTownhall)
+							{
+								temp1.shoot(make_pair(i+2, j),make_pair(i+4,j));
+								if(temp1==final)
+									return (string)"C "+to_string(i+2)+(string)" "+to_string(j)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j);
+								temp1=temp2;
+							}
+							else if(initial.access(i+4,j)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"C "+to_string(i+2)+(string)" "+to_string(j)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j);
+								if(initial.access(i+5,j)==blackSoldier||initial.access(i+5,j)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i+2, j),make_pair(i+5,j));
+									if(temp1==final)
+										return (string)"C "+to_string(i+2)+(string)" "+to_string(j)+ (string)" B "+to_string(i+5)+ (string)" "+to_string(j);
+									temp1=temp2;
+								}
+							}								
+						}
+						if(initial.access(i-1,j)==unoccupied)
+						{
+							temp1.move(make_pair(i+2, j), make_pair(i-1, j));
+							if(temp1==final)
+								return (string)"S "+to_string(i+2)+(string)" "+to_string(j)+ (string)" M "+to_string(i-1)+ (string)" "+to_string(j);
+							temp1=temp2;
+							if(initial.access(i-2,j)==blackSoldier||initial.access(i-2,j)==blackTownhall)
+							{
+								temp1.shoot(make_pair(i, j),make_pair(i-2,j));
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j);
+								temp1=temp2;
+							}
+							else if(initial.access(i-2,j)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j);
+								if(initial.access(i-3,j)==blackSoldier||initial.access(i-3,j)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-3,j));
+									if(temp1==final)
+										return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-3)+ (string)" "+to_string(j);
+									temp1=temp2;
+								}
+							}								
+						}
+					}
+					//end cannon moves/shoots
+				}
+			}
+		}
+
+	}
+	else{
+		for(int i=0;i<8;i++){
+			for(int j=0;j<8;++j){
+				if(initial.getBoard()[i][j]==blackSoldier)
+				{
+					if(initial.access(i+1, j)==unoccupied||initial.access(i+1, j)==whiteSoldier||initial.access(i+1, j)==whiteTownhall){
+						temp1.move(make_pair(i, j), make_pair(i+1, j));
+						if(temp1==final)
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+1)+ (string)" "+to_string(j);
+						temp1=temp2;
+					}
+					if(initial.access(i+1, j+1)==unoccupied||initial.access(i+1, j+1)==whiteSoldier||initial.access(i+1, j+1)==whiteTownhall){
+						temp1.move(make_pair(i, j), make_pair(i+1, j+1));
+						if(temp1==final)
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+1)+ (string)" "+to_string(j+1);
+						temp1=temp2;
+					}
+					if(initial.access(i+1, j-1)==unoccupied||initial.access(i+1, j-1)==whiteSoldier||initial.access(i+1, j-1)==whiteTownhall){
+						temp1.move(make_pair(i, j), make_pair(i+1, j-1));
+						if(temp1==final)
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+1)+ (string)" "+to_string(j-1);
+						temp1=temp2;
+					}
+					if(initial.access(i, j+1)==whiteTownhall||initial.access(i, j+1)==whiteSoldier){
+						temp1.move(make_pair(i, j), make_pair(i, j+1));
+						if(temp1==final)
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i)+ (string)" "+to_string(j+1);
+						temp1=temp2;
+					}
+					if(initial.access(i, j-1)==whiteTownhall||initial.access(i, j-1)==whiteSoldier){
+						temp1.move(make_pair(i, j), make_pair(i, j-1));
+						if(temp1==final)
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i)+ (string)" "+to_string(j-1);
+						temp1=temp2;
+					}
+					//retreat
+					if(initial.access(i-1, j)==whiteSoldier||initial.access(i-1, j+1)==whiteSoldier||initial.access(i-1, j-1)==whiteSoldier||initial.access(i, j+1)==whiteSoldier||initial.access(i, j-1)==whiteSoldier){
+						temp1.move(make_pair(i, j), make_pair(i+2, j));
+						if(temp1==final)
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+2)+ (string)" "+to_string(j);
+						temp1=temp2;
+						temp1.move(make_pair(i, j), make_pair(i+2, j-2));
+						if(temp1==final)
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+2)+ (string)" "+to_string(j-2);
+						temp1=temp2;
+						temp1.move(make_pair(i, j), make_pair(i+2, j+2));
+						if(temp1==final)
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+2)+ (string)" "+to_string(j+2);
+						temp1=temp2;
+					}
+					//cannon
+					if(initial.access(i, j+1)==blackSoldier&&initial.access(i, j+2)==blackSoldier)
+					{
+						if(initial.access(i,j+3)==unoccupied)
+						{
+							temp1.move(make_pair(i, j), make_pair(i, j+3));
+							if(temp1==final)
+								return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i)+ (string)" "+to_string(j+3);
+							temp1=temp2;
+							if(initial.access(i,j+4)==whiteSoldier||initial.access(i,j+4)==whiteTownhall)
+							{
+								temp1.shoot(make_pair(i, j+2),make_pair(i,j+4));
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i)+ (string)" "+to_string(j+4);
+								temp1=temp2;
+							}
+							else if(initial.access(i,j+4)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i)+ (string)" "+to_string(j+4);
+								if(initial.access(i,j+5)==whiteSoldier||initial.access(i,j+5)==whiteTownhall)
+								{
+									temp1.shoot(make_pair(i, j+2),make_pair(i,j+5));
+									if(temp1==final)
+										return (string)"C "+to_string(i)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i)+ (string)" "+to_string(j+5);
+									temp1=temp2;
+								}
+							}								
+						}
+						if(initial.access(i,j-1)==unoccupied)
+						{
+							temp1.move(make_pair(i, j+2), make_pair(i, j-1));
+							if(temp1==final)
+								return (string)"S "+to_string(i)+(string)" "+to_string(j+2)+ (string)" M "+to_string(i)+ (string)" "+to_string(j-1);
+							temp1=temp2;
+							if(initial.access(i,j-2)==whiteSoldier||initial.access(i,j-2)==whiteTownhall)
+							{
+								temp1.shoot(make_pair(i, j),make_pair(i,j-2));
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j-2);
+								temp1=temp2;
+							}
+							else if(initial.access(i,j-2)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j-2);
+								if(initial.access(i,j-3)==whiteSoldier||initial.access(i,j-3)==whiteTownhall)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i,j-3));
+									if(temp1==final)
+										return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j-3);
+									temp1=temp2;
+								}
+							}								
+						}
+					}
+
+					if(initial.access(i+1, j-1)==blackSoldier&&initial.access(i+2, j-2)==blackSoldier)
+					{
+						if(initial.access(i+3,j-3)==unoccupied)
+						{
+							temp1.move(make_pair(i, j), make_pair(i+3, j-3));
+							if(temp1==final)
+								return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+3)+ (string)" "+to_string(j-3);
+							temp1=temp2;
+							if(initial.access(i+4,j-4)==whiteSoldier||initial.access(i+4,j-4)==whiteTownhall)
+							{
+								temp1.shoot(make_pair(i+2, j-2),make_pair(i+4,j-4));
+								if(temp1==final)
+									return (string)"C "+to_string(i+2)+(string)" "+to_string(j-2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j-4);
+								temp1=temp2;
+							}
+							else if(initial.access(i+4,j-4)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"C "+to_string(i+2)+(string)" "+to_string(j-2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j-4);
+								if(initial.access(i+5,j-5)==whiteSoldier||initial.access(i+5,j-5)==whiteTownhall)
+								{
+									temp1.shoot(make_pair(i+2, j-2),make_pair(i+5,j-5));
+									if(temp1==final)
+										return (string)"C "+to_string(i+2)+(string)" "+to_string(j-2)+ (string)" B "+to_string(i+5)+ (string)" "+to_string(j-5);
+									temp1=temp2;
+								}
+							}								
+						}
+						if(initial.access(i-1,j+1)==unoccupied)
+						{
+							temp1.move(make_pair(i+2, j-2), make_pair(i-1, j+1));
+							if(temp1==final)
+								return (string)"S "+to_string(i+2)+(string)" "+to_string(j-2)+ (string)" M "+to_string(i-1)+ (string)" "+to_string(j+1);
+							temp1=temp2;
+							if(initial.access(i-2,j+2)==whiteSoldier||initial.access(i-2,j+2)==whiteTownhall)
+							{
+								temp1.shoot(make_pair(i, j),make_pair(i-2,j+2));
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j+2);
+								temp1=temp2;
+							}
+							else if(initial.access(i-2,j+2)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j+2);
+								if(initial.access(i-3,j+3)==whiteSoldier||initial.access(i-3,j+3)==whiteTownhall)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-3,j+3));
+									if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-3)+ (string)" "+to_string(j+3);
+									temp1=temp2;
+								}
+							}								
+						}
+					}
+
+					if(initial.access(i+1, j+1)==blackSoldier&&initial.access(i+2, j+2)==blackSoldier)
+					{
+						if(initial.access(i+3,j+3)==unoccupied)
+						{
+							temp1.move(make_pair(i, j), make_pair(i+3, j+3));
+							if(temp1==final)
+								return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+3)+ (string)" "+to_string(j+3);
+							temp1=temp2;
+							if(initial.access(i+4,j+4)==whiteSoldier||initial.access(i+4,j+4)==whiteTownhall)
+							{
+								temp1.shoot(make_pair(i+2, j+2),make_pair(i+2,j+4));
+								if(temp1==final)
+									return (string)"C "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+2)+ (string)" "+to_string(j+4);
+								temp1=temp2;
+							}
+							else if(initial.access(i+4,j+4)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"C "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+2)+ (string)" "+to_string(j+4);
+								if(initial.access(i+5,j+5)==whiteSoldier||initial.access(i+5,j+5)==whiteTownhall)
+								{
+									temp1.shoot(make_pair(i+2, j+2),make_pair(i+5,j+5));
+									if(temp1==final)
+									return (string)"C "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+5)+ (string)" "+to_string(j+5);
+									temp1=temp2;
+								}
+							}								
+						}
+						if(initial.access(i-1,j-1)==unoccupied)
+						{
+							temp1.move(make_pair(i+2, j+2), make_pair(i-1, j-1));
+							if(temp1==final)
+								return (string)"S "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" M "+to_string(i-1)+ (string)" "+to_string(j-1);
+							temp1=temp2;
+							if(initial.access(i-2,j-2)==whiteSoldier||initial.access(i-2,j-2)==whiteTownhall)
+							{
+								temp1.shoot(make_pair(i, j),make_pair(i-2,j-2));
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j-2);
+								temp1=temp2;
+							}
+							else if(initial.access(i-2,j-2)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j-2);
+								if(initial.access(i-3,j-3)==whiteSoldier||initial.access(i-3,j-3)==whiteTownhall)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-3,j-3));
+									if(temp1==final)
+										return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-3)+ (string)" "+to_string(j-3);
+									temp1=temp2;
+								}
+							}								
+						}
+					}
+
+					if(initial.access(i+1, j)==blackSoldier&&initial.access(i+2, j)==blackSoldier)
+					{
+						if(initial.access(i+3,j)==unoccupied)
+						{
+							temp1.move(make_pair(i, j), make_pair(i+3, j));
+							if(temp1==final)
+								return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+3)+ (string)" "+to_string(j);
+							temp1=temp2;
+							if(initial.access(i+4,j)==whiteSoldier||initial.access(i+4,j)==whiteTownhall)
+							{
+								temp1.shoot(make_pair(i+2, j),make_pair(i+4,j));
+								if(temp1==final)
+									return (string)"C "+to_string(i+2)+(string)" "+to_string(j)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j);
+								temp1=temp2;
+							}
+							else if(initial.access(i+4,j)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"C "+to_string(i+2)+(string)" "+to_string(j)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j);
+								if(initial.access(i+5,j)==whiteSoldier||initial.access(i+5,j)==whiteTownhall)
+								{
+									temp1.shoot(make_pair(i+2, j),make_pair(i+5,j));
+									if(temp1==final)
+										return (string)"C "+to_string(i+2)+(string)" "+to_string(j)+ (string)" B "+to_string(i+5)+ (string)" "+to_string(j);
+									temp1=temp2;
+								}
+							}								
+						}
+						if(initial.access(i-1,j)==unoccupied)
+						{
+							temp1.move(make_pair(i+2, j), make_pair(i-1, j));
+							if(temp1==final)
+								return (string)"S "+to_string(i+2)+(string)" "+to_string(j)+ (string)" M "+to_string(i-1)+ (string)" "+to_string(j);
+							temp1=temp2;
+							if(initial.access(i-2,j)==whiteSoldier||initial.access(i-2,j)==whiteTownhall)
+							{
+								temp1.shoot(make_pair(i, j),make_pair(i-2,j));
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j);
+								temp1=temp2;
+							}
+							else if(initial.access(i-2,j)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"C "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j);
+								if(initial.access(i-3,j)==whiteSoldier||initial.access(i-3,j)==whiteTownhall)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-3,j));
+									if(temp1==final)
+										return (string)"C "+to_string(i-3)+(string)" "+to_string(j)+ (string)" B "+to_string(i-3)+ (string)" "+to_string(j);
+									temp1=temp2;
+								}
+							}								
+						}
+					}
+					//end cannon moves/shoots
+				}
+			}
+		}
+
+	}
 	return move;
-}
+}		
+
+
+
 string select_move(CannonBoard present, string move, int depth, bool white)
 {
 

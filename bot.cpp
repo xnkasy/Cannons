@@ -17,7 +17,8 @@ enum state
 // 	rdiag=2,
 // 	ldiag=3
 // };
-
+//first is soldiers, then townhalls, then cannons
+int parameters[]={2,1000,5};
 vector<state> seedVec(8, unoccupied);
 class CannonBoard
 {
@@ -740,7 +741,6 @@ class CannonBoard
 					cannons++;
 			}
 		}
-		int parameters[]={2,100,5};
 		return soldiers*parameters[0]-(2-townhalls)*parameters[1]+cannons*parameters[2];
 
 	}
@@ -765,7 +765,7 @@ class CannonBoard
 
 			}
 		}
-		int parameters[]={2,100,5};
+		
 		return soldiers*parameters[0]+(2-townhalls)*parameters[1]+cannons*parameters[2];
 
 	}

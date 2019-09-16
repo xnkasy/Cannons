@@ -23,7 +23,7 @@ ofstream fout;
 // 	ldiag=3
 // };
 //first is soldiers, then cannons, then unoccupiedcannon hits, then occupiedcannon hits, then townhall hits, then townhalls
-int parameters[]={6, 1, 1, 2, 50, 500, 7};
+int parameters[]={6, 1, 1, 2, 50, 500, 0};
 vector<state> seedVec(8, unoccupied);
 class CannonBoard
 {
@@ -776,17 +776,17 @@ class CannonBoard
 
 
 		}
-		int num_black=0;
-		for(int i=0;i<8;i++){
-			for(int j=0;j<8;++j){
-				if(board[i][j]==blackSoldier)
-					num_black++;
+		// int num_black=0;
+		// for(int i=0;i<8;i++){
+		// 	for(int j=0;j<8;++j){
+		// 		if(board[i][j]==blackSoldier)
+		// 			num_black++;
 
-			}
-		}
-		if(num_black==0)
-			return (soldiers*parameters[0])-((2-townhalls)*parameters[5])+(cannons*parameters[1])+(hits_unoccupied*parameters[2])+(hits_black*parameters[3])+(hits_townhall*parameters[4]) -parameters[6];
-		else
+		// 	}
+		// }
+		// if(num_black==0)
+		// 	return (soldiers*parameters[0])-((2-townhalls)*parameters[5])+(cannons*parameters[1])+(hits_unoccupied*parameters[2])+(hits_black*parameters[3])+(hits_townhall*parameters[4]) -parameters[6];
+		// else
 			return (soldiers*parameters[0])-((2-townhalls)*parameters[5])+(cannons*parameters[1])+(hits_unoccupied*parameters[2])+(hits_black*parameters[3])+(hits_townhall*parameters[4]);
 
 	}
@@ -860,17 +860,17 @@ class CannonBoard
 
 
 		}
-		int num_white=0;
-		for(int i=0;i<8;i++){
-			for(int j=0;j<8;++j){
-				if(board[i][j]==blackSoldier)
-					num_white++;
+		// int num_white=0;
+		// for(int i=0;i<8;i++){
+		// 	for(int j=0;j<8;++j){
+		// 		if(board[i][j]==blackSoldier)
+		// 			num_white++;
 
-			}
-		}
-		if(num_white==0)
-			return (soldiers*parameters[0])-((2-townhalls)*parameters[5])+(cannons*parameters[1])+(hits_unoccupied*parameters[2])+(hits_white*parameters[3])+(hits_townhall*parameters[4])-parameters[6];
-		else
+		// 	}
+		// }
+//		if(num_white==0)
+//			return (soldiers*parameters[0])-((2-townhalls)*parameters[5])+(cannons*parameters[1])+(hits_unoccupied*parameters[2])+(hits_white*parameters[3])+(hits_townhall*parameters[4])-parameters[6];
+//		else
 			return (soldiers*parameters[0])-((2-townhalls)*parameters[5])+(cannons*parameters[1])+(hits_unoccupied*parameters[2])+(hits_white*parameters[3])+(hits_townhall*parameters[4]);
 		
 
@@ -1668,9 +1668,12 @@ int main()
 			// 	}
 			// }
 			string AImove;
-			if(num_moves<2)
-			 	AImove=select_move(ourBoard, 3, true, true);
-			else if(time_spent>=85000)
+			// if(num_moves==0)
+			// 	AImove=select_move(ourBoard, 5, true, true);
+			// else if(num_moves<2)
+			//  	AImove=select_move(ourBoard, 3, true, true);
+			// else 
+			if(time_spent>=85000)
 			 	AImove=select_move(ourBoard, 1, true, true);
 			else if(time_spent>=75000){
 				AImove=select_move(ourBoard, 3, true, true);

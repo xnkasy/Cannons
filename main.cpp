@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <chrono>  
 using namespace std;
 enum state 
 {   blackTownhall=-1, 
@@ -11,6 +12,7 @@ enum state
     blackSoldier= -2,
     whiteSoldier=2
 };
+// clock_t begin;
 ofstream fout;
 //fout.open("a.txt");
 // enum cannontype
@@ -21,7 +23,7 @@ ofstream fout;
 // 	ldiag=3
 // };
 //first is soldiers, then cannons, then unoccupiedcannon hits, then occupiedcannon hits, then townhall hits, then townhalls
-int parameters[]={3, 2, 1, 1, 20, 200};
+int parameters[]={6, 1, 1, 2, 50, 500, 7};
 vector<state> seedVec(8, unoccupied);
 class CannonBoard
 {
@@ -78,58 +80,8 @@ class CannonBoard
 		board[end.first][end.second]=dum;
 		return true;
 	}
-	bool shoot(pair<int, int> start, pair<int, int> end) // add braces cause dangling else can happen
+	bool shoot(pair<int, int> start, pair<int, int> end)
 	{
-		// if((start.first-end.first)==-2 && (start.second-end.second)==-2)
-		// 	if(board[start.first+1][start.second+1]!=unoccupied)
-		// 		return false;
-		// else if((start.first-end.first)==-3 && (start.second-end.second)==-3)
-		// 	if(board[start.first+1][start.second+1]!=unoccupied)
-		// 		return false;
-		// if((start.first-end.first)==-2 && (start.second-end.second)==0)
-		// 	if(board[start.first+1][start.second]!=unoccupied)
-		// 		return false;
-		// else if((start.first-end.first)==-3 && (start.second-end.second)==0)
-		// 	if(board[start.first+1][start.second]!=unoccupied)
-		// 		return false;	
-		// if((start.first-end.first)==-2 && (start.second-end.second)==2)
-		// 	if(board[start.first+1][start.second-1]!=unoccupied)
-		// 		return false;
-		// else if((start.first-end.first)==-3 && (start.second-end.second)==3)
-		// 	if(board[start.first+1][start.second-1]!=unoccupied)
-		// 		return false;
-
-		// if((start.first-end.first)==0 && (start.second-end.second)==-2)
-		// 	if(board[start.first][start.second+1]!=unoccupied)
-		// 		return false;
-		// else if((start.first-end.first)==0 && (start.second-end.second)==-3)
-		// 	if(board[start.first][start.second+1]!=unoccupied)
-		// 		return false;	
-		// if((start.first-end.first)==0 && (start.second-end.second)==2)
-		// 	if(board[start.first][start.second-1]!=unoccupied)
-		// 		return false;
-		// else if((start.first-end.first)==0 && (start.second-end.second)==3)
-		// 	if(board[start.first][start.second-1]!=unoccupied)
-		// 		return false;
-
-		// if((start.first-end.first)==2 && (start.second-end.second)==-2)
-		// 	if(board[start.first-1][start.second+1]!=unoccupied)
-		// 		return false;
-		// else if((start.first-end.first)==3 && (start.second-end.second)==-3)
-		// 	if(board[start.first-1][start.second+1]!=unoccupied)
-		// 		return false;
-		// if((start.first-end.first)==2 && (start.second-end.second)==0)
-		// 	if(board[start.first-1][start.second]!=unoccupied)
-		// 		return false;
-		// else if((start.first-end.first)==3 && (start.second-end.second)==0)
-		// 	if(board[start.first-1][start.second]!=unoccupied)
-		// 		return false;	
-		// if((start.first-end.first)==2 && (start.second-end.second)==2)
-		// 	if(board[start.first-1][start.second-1]!=unoccupied)
-		// 		return false;
-		// else if((start.first-end.first)==3 && (start.second-end.second)==3)
-		// 	if(board[start.first-1][start.second-1]!=unoccupied)
-		// 		return false;
 
 		board[end.first][end.second]=unoccupied;
 		return true;
@@ -824,8 +776,18 @@ class CannonBoard
 
 
 		}
+		int num_black=0;
+		for(int i=0;i<8;i++){
+			for(int j=0;j<8;++j){
+				if(board[i][j]==blackSoldier)
+					num_black++;
 
-		return (soldiers*parameters[0])-((2-townhalls)*parameters[5])+(cannons*parameters[1])+(hits_unoccupied*parameters[2])+(hits_black*parameters[3])+(hits_townhall*parameters[4]);
+			}
+		}
+		if(num_black==0)
+			return (soldiers*parameters[0])-((2-townhalls)*parameters[5])+(cannons*parameters[1])+(hits_unoccupied*parameters[2])+(hits_black*parameters[3])+(hits_townhall*parameters[4]) -parameters[6];
+		else
+			return (soldiers*parameters[0])-((2-townhalls)*parameters[5])+(cannons*parameters[1])+(hits_unoccupied*parameters[2])+(hits_black*parameters[3])+(hits_townhall*parameters[4]);
 
 	}
 	int evaluate_black()
@@ -898,9 +860,19 @@ class CannonBoard
 
 
 		}
+		int num_white=0;
+		for(int i=0;i<8;i++){
+			for(int j=0;j<8;++j){
+				if(board[i][j]==blackSoldier)
+					num_white++;
 
+			}
+		}
+		if(num_white==0)
+			return (soldiers*parameters[0])-((2-townhalls)*parameters[5])+(cannons*parameters[1])+(hits_unoccupied*parameters[2])+(hits_white*parameters[3])+(hits_townhall*parameters[4])-parameters[6];
+		else
+			return (soldiers*parameters[0])-((2-townhalls)*parameters[5])+(cannons*parameters[1])+(hits_unoccupied*parameters[2])+(hits_white*parameters[3])+(hits_townhall*parameters[4]);
 		
-		return (soldiers*parameters[0])-((2-townhalls)*parameters[5])+(cannons*parameters[1])+(hits_unoccupied*parameters[2])+(hits_white*parameters[3])+(hits_townhall*parameters[4]);
 
 	}
 	int evaluate(bool white)
@@ -1115,9 +1087,9 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 							temp1=temp2;
 							if(initial.access(i+4,j+4)==blackSoldier||initial.access(i+4,j+4)==blackTownhall)
 							{
-								temp1.shoot(make_pair(i+2, j+2),make_pair(i+2,j+4));
+								temp1.shoot(make_pair(i+2, j+2),make_pair(i+4,j+4));
 								if(temp1==final)
-									return (string)"S "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+2)+ (string)" "+to_string(j+4);
+									return (string)"S "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j+4);
 								temp1=temp2;
 							}
 							else if(initial.access(i+4,j+4)==unoccupied)
@@ -1227,22 +1199,23 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 			for(int j=0;j<8;++j){
 				if(initial.getBoard()[i][j]==blackSoldier)
 				{
-					if(initial.access(i+1, j)==unoccupied||initial.access(i+1, j)==whiteSoldier||initial.access(i+1, j)==whiteTownhall){
-						temp1.move(make_pair(i, j), make_pair(i+1, j));
+					//cout<<"at i, j"<<i<<", "<<j<<endl;
+					if(initial.access(i-1, j)==unoccupied||initial.access(i-1, j)==whiteSoldier||initial.access(i-1, j)==whiteTownhall){
+						temp1.move(make_pair(i, j), make_pair(i-1, j));
 						if(temp1==final)
-							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+1)+ (string)" "+to_string(j);
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i-1)+ (string)" "+to_string(j);
 						temp1=temp2;
 					}
-					if(initial.access(i+1, j+1)==unoccupied||initial.access(i+1, j+1)==whiteSoldier||initial.access(i+1, j+1)==whiteTownhall){
-						temp1.move(make_pair(i, j), make_pair(i+1, j+1));
+					if(initial.access(i-1, j+1)==unoccupied||initial.access(i-1, j+1)==whiteSoldier||initial.access(i-1, j+1)==whiteTownhall){
+						temp1.move(make_pair(i, j), make_pair(i-1, j+1));
 						if(temp1==final)
-							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+1)+ (string)" "+to_string(j+1);
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i-1)+ (string)" "+to_string(j+1);
 						temp1=temp2;
 					}
-					if(initial.access(i+1, j-1)==unoccupied||initial.access(i+1, j-1)==whiteSoldier||initial.access(i+1, j-1)==whiteTownhall){
-						temp1.move(make_pair(i, j), make_pair(i+1, j-1));
+					if(initial.access(i-1, j-1)==unoccupied||initial.access(i-1, j-1)==whiteSoldier||initial.access(i-1, j-1)==whiteTownhall){
+						temp1.move(make_pair(i, j), make_pair(i-1, j-1));
 						if(temp1==final)
-							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i+1)+ (string)" "+to_string(j-1);
+							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i-1)+ (string)" "+to_string(j-1);
 						temp1=temp2;
 					}
 					if(initial.access(i, j+1)==whiteTownhall||initial.access(i, j+1)==whiteSoldier){
@@ -1257,7 +1230,7 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 							return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" M "+to_string(i)+ (string)" "+to_string(j-1);
 						temp1=temp2;
 					}
-					//retreat
+					//cout<<"retreat"<<endl;
 					if(initial.access(i-1, j)==whiteSoldier||initial.access(i-1, j+1)==whiteSoldier||initial.access(i-1, j-1)==whiteSoldier||initial.access(i, j+1)==whiteSoldier||initial.access(i, j-1)==whiteSoldier){
 						if(i+2<8){
 							temp1.move(make_pair(i, j), make_pair(i+2, j));
@@ -1279,6 +1252,7 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 						}
 					}
 					//cannon
+					//cout<<"cannon"<<endl;
 					if(initial.access(i, j+1)==blackSoldier&&initial.access(i, j+2)==blackSoldier)
 					{
 						if(initial.access(i,j+3)==unoccupied)
@@ -1401,15 +1375,15 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 							temp1=temp2;
 							if(initial.access(i+4,j+4)==whiteSoldier||initial.access(i+4,j+4)==whiteTownhall)
 							{
-								temp1.shoot(make_pair(i+2, j+2),make_pair(i+2,j+4));
+								temp1.shoot(make_pair(i+2, j+2),make_pair(i+4,j+4));
 								if(temp1==final)
-									return (string)"S "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+2)+ (string)" "+to_string(j+4);
+									return (string)"S "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j+4);
 								temp1=temp2;
 							}
 							else if(initial.access(i+4,j+4)==unoccupied)
 							{
 								if(temp1==final)
-									return (string)"S "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+2)+ (string)" "+to_string(j+4);
+									return (string)"S "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j+4);
 								if(initial.access(i+5,j+5)==whiteSoldier||initial.access(i+5,j+5)==whiteTownhall)
 								{
 									temp1.shoot(make_pair(i+2, j+2),make_pair(i+5,j+5));
@@ -1496,7 +1470,7 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 								{
 									temp1.shoot(make_pair(i, j),make_pair(i-3,j));
 									if(temp1==final)
-										return (string)"S "+to_string(i-3)+(string)" "+to_string(j)+ (string)" B "+to_string(i-3)+ (string)" "+to_string(j);
+										return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-3)+ (string)" "+to_string(j);
 									temp1=temp2;
 								}
 							}								
@@ -1521,6 +1495,7 @@ string select_move(CannonBoard present,  int depth, bool white, bool who)
 	CannonBoard best_child;
 	int alpha=INT_MIN, beta=INT_MAX;
 	int max=INT_MIN;
+	//cout<<"Num of successors is"<<successors.size()<<endl;
 	for(auto it=successors.begin();it!=successors.end();it++){
 		int minVal;
 		//cout<<"depth sent is "<<depth-1<<endl;
@@ -1533,22 +1508,30 @@ string select_move(CannonBoard present,  int depth, bool white, bool who)
 			best_child=*it;
 		}
 	}
+	//cout<<"initial board is"<<endl;
+	//present.print();
+	//cout<<"final board is"<<endl;
+	//best_child.print();
 	//CannonBoard best_child= max_value_action(present, depth, white, INT_MIN, INT_MAX);
 	//cout<<"finally chosen max evaluation is "<<max<<endl;
 	//best_child.print();
-	return transform_move(present, best_child, white);
-
+	string toRet= transform_move(present, best_child, white);
+	//cout<<"Move found is"<<toRet<<endl;
+	return toRet;
 
 }
+
 int max_value_action(CannonBoard present, int depth, bool white, int alpha, int beta, bool who)
 {
-	//<<"max value action before possibleStates with depth "<<depth<<endl;
+	//cout<<"max value action before possibleStates with depth "<<depth<<endl;
 	vector<CannonBoard> successors = present.possibleStates(who);
 	//cout<<"min value action after possibleStates with depth "<<depth<<endl;
 	int max=INT_MIN;
 	CannonBoard best_child;
 	if(depth==0)
 		return present.evaluate(white);
+	if(successors.size()==0)
+		return 0;
 	for(auto it=successors.begin();it!=successors.end();it++){
 		int minVal;
 		if(depth==1){
@@ -1587,6 +1570,8 @@ int min_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 	CannonBoard best_child;
 	if(depth==0)
 		return present.evaluate(white);
+	if(successors.size()==0)
+		return 0;
 	for(auto it=successors.begin();it!=successors.end();it++){
 
 		int maxVal;
@@ -1615,19 +1600,13 @@ int min_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 
 
 	}
-	//cout<<endl;
-	//cout<<"maxVal chosen by minimiser  is "<<min<<endl<<endl;
-	if(depth==3){
-		//cout<<"======================================actual best min evaluation chosen is from depth "<<depth<<" is "<<best_child.evaluate_white()<<" and "<<best_child.evaluate_black()<<endl;
-	//best_child.print();
-	}
 	
 	return min;
 }
-CannonBoard oneMove(string command, CannonBoard board)
+void oneMove(string command, CannonBoard &board)
 {
 	if(command.length()<11)
-			return board;
+			return ;
 		pair<int, int> init=make_pair((int)command[2]-48, (int)command[4]-48 );
 		pair<int, int> target=make_pair((int)command[8]-48, (int)command[10]-48 );
 		//cout<<"To move from "<<init.first<<", "<<init.second<<endl;
@@ -1640,7 +1619,6 @@ CannonBoard oneMove(string command, CannonBoard board)
 		{
 			board.shoot(init, target);
 		}
-	return board;
 }
 vector<string> split (string s, string delimiter) {
     size_t pos_start = 0, pos_end, delim_len = delimiter.length();
@@ -1659,46 +1637,105 @@ vector<string> split (string s, string delimiter) {
 
 int main()
 {
-	fout.open("a.txt");
 	string command1="";
 	string command="";
-	string command2="";
-	
+
 	CannonBoard ourBoard;
+
 	getline (cin, command1); 
-	//ourBoard.print();
-	while(true){
+	vector<string> S3=split(command1," ");
+	bool white;
+	if(S3[0]=="1")
+		white=false;
+	else
+		white=true;
+	int num_moves=0;
+	long time_spent =0.0;
+	if(white){
+		while(true){
+			
 
-		getline (cin, command1); 
-		fout<<"After user the move "<<command1<<" state is "<<endl;
-		vector<string> S1=split(command1," ");
-		command=S1[0]+(string)" "+S1[2]+(string)" "+S1[1]+(string)" "+S1[3]+(string)" "+S1[5]+(string)" "+S1[4];
-		ourBoard=oneMove(command, ourBoard);
-
-		 fout<<ourBoard.prints();
-		//cout<<command<<" done "<<endl;
-		//ourBoard.print();
-
-		//getline (cin, command2); 
-		//vector<string> S2=split(command2," ");
-		//command=S2[0]+(string)" "+S2[2]+(string)" "+S2[1]+(string)" "+S2[3]+(string)" "+S2[5]+(string)" "+S2[4];
-		//ourBoard=oneMove(command, ourBoard);
-		//cout<<command<<" done "<<endl;
-		
-		 string AImove;
-		 AImove=select_move(ourBoard, 4, true, true);
-		 vector<string> S=split(AImove," ");
-		 
-		
-		 cout<<S[0]<<" "<<S[2]<<" "<<S[1]<<" "<<S[3]<<" "<<S[5]<<" "<<S[4]<<endl;
-		 fout<<"After AI the move "<<S[0]<<" "<<S[2]<<" "<<S[1]<<" "<<S[3]<<" "<<S[5]<<" "<<S[4];
-		 fout<<" state is "<<endl;
-		 ourBoard=oneMove(AImove, ourBoard);
-		 fout<<ourBoard.prints();
-		 //ourBoard.print();
-		// fout<<AImove<<" done "<<endl;
-		// ourBoard.print();
+			getline (cin, command1); 
+			vector<string> S1=split(command1," ");
+			command=S1[0]+(string)" "+S1[2]+(string)" "+S1[1]+(string)" "+S1[3]+(string)" "+S1[5]+(string)" "+S1[4];
+			oneMove(command, ourBoard);
+			std::chrono::time_point<std::chrono::system_clock> begin = std::chrono::system_clock::now();
+			// int soldiers=0;
+			// for(int i=0;i<8;i++){
+			// 	for(int j=0;j<8;++j){
+			// 		if(ourBoard.getBoard()[i][j]==blackSoldier)
+			// 			soldiers++;
+			// 	}
+			// }
+			string AImove;
+			if(num_moves<2)
+			 	AImove=select_move(ourBoard, 3, true, true);
+			else if(time_spent>=85000)
+			 	AImove=select_move(ourBoard, 1, true, true);
+			else if(time_spent>=75000){
+				AImove=select_move(ourBoard, 3, true, true);
+				//fout<<time_spent<<" 1"<<endl;
+			}
+			// else if (soldiers<3){
+			// 	AImove=select_move(ourBoard, 5, true, true);
+			// }
+			else {
+			 	AImove=select_move(ourBoard, 4, true, true);
+			 	//fout<<time_spent<<" 2"<<endl;
+			 }
+			 vector<string> S=split(AImove," ");
+			 cout<<S[0]<<" "<<S[2]<<" "<<S[1]<<" "<<S[3]<<" "<<S[5]<<" "<<S[4]<<endl;
+			 oneMove(AImove, ourBoard);
+			 num_moves++;
+			 time_spent += (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - begin)).count();
+		}
 	}	
-	fout.close();
+	else
+	{
+		while(true){
+			std::chrono::time_point<std::chrono::system_clock> begin = std::chrono::system_clock::now();
+			int soldiers=0;
+			// for(int i=0;i<8;i++){
+			// 	for(int j=0;j<8;++j){
+			// 		if(ourBoard.getBoard()[i][j]==blackSoldier)
+			// 			soldiers++;
+			// 	}
+			// }
+			string AImove;
+			if(num_moves==0)
+				AImove="S 7 4 M 6 3";
+			else if(num_moves<3)
+			 	AImove=select_move(ourBoard, 3, false, false);
+			else if(time_spent>=85000)
+			 	AImove=select_move(ourBoard, 1, false, false);
+			else if(time_spent>=75000){
+				AImove=select_move(ourBoard, 3, false, false);
+				fout<<time_spent<<" 1"<<endl;
+			}
+			// else if (soldiers<3){
+			// 	AImove=select_move(ourBoard, 5, true, true);
+			// }
+			else{
+			 	AImove=select_move(ourBoard, 4, false, false);
+			 	fout<<time_spent<<" 2"<<endl;
+			}
+
+			vector<string> S=split(AImove," ");
+			 
+			cout<<S[0]<<" "<<S[2]<<" "<<S[1]<<" "<<S[3]<<" "<<S[5]<<" "<<S[4]<<endl;
+			//cout<<"After AI the move "<<S[0]<<" "<<S[2]<<" "<<S[1]<<" "<<S[3]<<" "<<S[5]<<" "<<S[4];
+			oneMove(AImove, ourBoard);
+			//fout<<ourBoard.prints();
+			time_spent += (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - begin)).count();
+			getline (cin, command1); 
+			//fout<<"After user the move "<<command1<<" state is "<<endl;
+			vector<string> S1=split(command1," ");
+			command=S1[0]+(string)" "+S1[2]+(string)" "+S1[1]+(string)" "+S1[3]+(string)" "+S1[5]+(string)" "+S1[4];
+			oneMove(command, ourBoard);
+			num_moves++;
+			
+
+		}
+	}	
 	return 0;
 }

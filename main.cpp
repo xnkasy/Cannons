@@ -20,8 +20,8 @@ ofstream fout;
 // 	rdiag=2,
 // 	ldiag=3
 // };
-//first is soldiers, then townhalls, then cannons
-int parameters[]={2,1000,5};
+//first is soldiers, then cannons, then unoccupiedcannon hits, then occupiedcannon hits, then townhall hits, then townhalls
+int parameters[]={3, 2, 1, 1, 20, 200};
 vector<state> seedVec(8, unoccupied);
 class CannonBoard
 {
@@ -781,12 +781,51 @@ class CannonBoard
 			pair<int, int> start=it.first;
 			pair<int, int> end=it.second;
 			if((start.first==end.first+2)&&(start.second==end.second)){
-				hits_unoccupied=(access(start.first+2)==unoccupied)+(access(start.first+3)==unoccupied)+(access(end.first-2)==unoccupied)+(access(end.first-3)==unoccupied);
-				
+				hits_unoccupied=(access(start.first+2, start.second)==unoccupied)+(access(start.first+3, start.second )==unoccupied)+(access(end.first-2, start.second)==unoccupied)+(access(end.first-3, start.second)==unoccupied);
+				hits_townhall=(access(start.first+2, start.second)==blackTownhall)+(access(start.first+3, start.second)==blackTownhall)+(access(end.first-2, start.second)==blackTownhall)+(access(end.first-3, start.second)==blackTownhall);
+				hits_black=(access(start.first+2, start.second)==blackSoldier)+(access(start.first+3, start.second)==blackSoldier)+(access(end.first-2, start.second)==blackSoldier)+(access(end.first-3, start.second)==blackSoldier);
+			}
+			else if((start.first==end.first-2)&&(start.second==end.second)){
+				hits_unoccupied=(access(start.first-2, start.second)==unoccupied)+(access(start.first-3, start.second)==unoccupied)+(access(end.first+2, start.second)==unoccupied)+(access(end.first+3, start.second)==unoccupied);
+				hits_townhall=(access(start.first-2, start.second)==blackTownhall)+(access(start.first-3, start.second)==blackTownhall)+(access(end.first+2, start.second)==blackTownhall)+(access(end.first+3, start.second)==blackTownhall);
+				hits_black=(access(start.first-2, start.second)==blackSoldier)+(access(start.first-3, start.second)==blackSoldier)+(access(end.first+2, start.second)==blackSoldier)+(access(end.first+3, start.second)==blackSoldier);
+			}
+			else if((start.first==end.first)&&(start.second==end.second-2)){
+				hits_unoccupied=(access(start.first, start.second-2)==unoccupied)+(access(start.first, start.second-3)==unoccupied)+(access(end.first, start.second+2)==unoccupied)+(access(end.first, start.second+3)==unoccupied);
+				hits_townhall=(access(start.first, start.second-2)==blackTownhall)+(access(start.first, start.second-3)==blackTownhall)+(access(end.first, start.second+2)==blackTownhall)+(access(end.first, start.second+3)==blackTownhall);
+				hits_black=(access(start.first, start.second-2)==blackSoldier)+(access(start.first, start.second-3)==blackSoldier)+(access(end.first, start.second+2)==blackSoldier)+(access(end.first, start.second+3)==blackSoldier);
+			}
+			else if((start.first==end.first)&&(start.second==end.second+2)){
+				hits_unoccupied=(access(start.first, start.second+2)==unoccupied)+(access(start.first, start.second+3)==unoccupied)+(access(end.first, start.second-2)==unoccupied)+(access(end.first, start.second-3)==unoccupied);
+				hits_townhall=(access(start.first, start.second+2)==blackTownhall)+(access(start.first, start.second+3)==blackTownhall)+(access(end.first, start.second-2)==blackTownhall)+(access(end.first, start.second-3)==blackTownhall);
+				hits_black=(access(start.first, start.second+2)==blackSoldier)+(access(start.first, start.second+3)==blackSoldier)+(access(end.first, start.second-2)==blackSoldier)+(access(end.first, start.second-3)==blackSoldier);
 			}
 
+			else if((start.first==end.first+2)&&(start.second==end.second+2)){
+				hits_unoccupied=(access(start.first+2, start.second+2)==unoccupied)+(access(start.first+3, start.second+3 )==unoccupied)+(access(end.first-2, end.second-2)==unoccupied)+(access(end.first-3, start.second-3)==unoccupied);
+				hits_townhall=(access(start.first+2, start.second+2)==blackTownhall)+(access(start.first+3, start.second+3)==blackTownhall)+(access(end.first-2, end.second-2)==blackTownhall)+(access(end.first-3, start.second-3)==blackTownhall);
+				hits_black=(access(start.first+2, start.second+2)==blackSoldier)+(access(start.first+3, start.second+3)==blackSoldier)+(access(end.first-2, end.second-2)==blackSoldier)+(access(end.first-3, start.second-3)==blackSoldier);
+			}
+			else if((start.first==end.first-2)&&(start.second==end.second+2)){
+				hits_unoccupied=(access(start.first-2, start.second+2)==unoccupied)+(access(start.first-3, start.second+3)==unoccupied)+(access(end.first+2, end.second-2)==unoccupied)+(access(end.first+3, end.second-3)==unoccupied);
+				hits_townhall=(access(start.first-2, start.second+2)==blackTownhall)+(access(start.first-3, start.second+3)==blackTownhall)+(access(end.first+2, end.second-2)==blackTownhall)+(access(end.first+3, end.second-3)==blackTownhall);
+				hits_black=(access(start.first-2, start.second+2)==blackSoldier)+(access(start.first-3, start.second+3)==blackSoldier)+(access(end.first+2, end.second-2)==blackSoldier)+(access(end.first+3, end.second-3)==blackSoldier);
+			}
+			else if((start.first==end.first+2)&&(start.second==end.second-2)){
+				hits_unoccupied=(access(start.first+2, start.second-2)==unoccupied)+(access(start.first+3, start.second-3 )==unoccupied)+(access(end.first-2, end.second+2)==unoccupied)+(access(end.first-3, start.second+3)==unoccupied);
+				hits_townhall=(access(start.first+2, start.second-2)==blackTownhall)+(access(start.first+3, start.second-3)==blackTownhall)+(access(end.first-2, end.second+2)==blackTownhall)+(access(end.first-3, start.second+3)==blackTownhall);
+				hits_black=(access(start.first+2, start.second-2)==blackSoldier)+(access(start.first+3, start.second-3)==blackSoldier)+(access(end.first-2, end.second+2)==blackSoldier)+(access(end.first-3, start.second+3)==blackSoldier);
+			}
+			else if((start.first==end.first-2)&&(start.second==end.second-2)){
+				hits_unoccupied=(access(start.first-2, start.second-2)==unoccupied)+(access(start.first-3, start.second-3)==unoccupied)+(access(end.first+2, end.second+2)==unoccupied)+(access(end.first+3, end.second+3)==unoccupied);
+				hits_townhall=(access(start.first-2, start.second-2)==blackTownhall)+(access(start.first-3, start.second-3)==blackTownhall)+(access(end.first+2, end.second+2)==blackTownhall)+(access(end.first+3, end.second+3)==blackTownhall);
+				hits_black=(access(start.first-2, start.second-2)==blackSoldier)+(access(start.first-3, start.second-3)==blackSoldier)+(access(end.first+2, end.second+2)==blackSoldier)+(access(end.first+3, end.second+3)==blackSoldier);
+			}
+
+
 		}
-		return (soldiers*parameters[0])-((2-townhalls)*parameters[1])+(cannons*parameters[2]);
+
+		return (soldiers*parameters[0])-((2-townhalls)*parameters[5])+(cannons*parameters[1])+(hits_unoccupied*parameters[2])+(hits_black*parameters[3])+(hits_townhall*parameters[4]);
 
 	}
 	int evaluate_black()
@@ -810,9 +849,58 @@ class CannonBoard
 
 			}
 		}
+		int hits_unoccupied=0, hits_white=0, hits_townhall=0;
+		vector<pair< pair<int,int>,pair<int,int> > > cannon_pos=getCannons_black();
+		for(auto it: cannon_pos){
+			pair<int, int> start=it.first;
+			pair<int, int> end=it.second;
+			if((start.first==end.first+2)&&(start.second==end.second)){
+				hits_unoccupied=(access(start.first+2, start.second)==unoccupied)+(access(start.first+3, start.second )==unoccupied)+(access(end.first-2, start.second)==unoccupied)+(access(end.first-3, start.second)==unoccupied);
+				hits_townhall=(access(start.first+2, start.second)==whiteTownhall)+(access(start.first+3, start.second)==whiteTownhall)+(access(end.first-2, start.second)==whiteTownhall)+(access(end.first-3, start.second)==whiteTownhall);
+				hits_white=(access(start.first+2, start.second)==whiteSoldier)+(access(start.first+3, start.second)==whiteSoldier)+(access(end.first-2, start.second)==whiteSoldier)+(access(end.first-3, start.second)==whiteSoldier);
+			}
+			else if((start.first==end.first-2)&&(start.second==end.second)){
+				hits_unoccupied=(access(start.first-2, start.second)==unoccupied)+(access(start.first-3, start.second)==unoccupied)+(access(end.first+2, start.second)==unoccupied)+(access(end.first+3, start.second)==unoccupied);
+				hits_townhall=(access(start.first-2, start.second)==whiteTownhall)+(access(start.first-3, start.second)==whiteTownhall)+(access(end.first+2, start.second)==whiteTownhall)+(access(end.first+3, start.second)==whiteTownhall);
+				hits_white=(access(start.first-2, start.second)==whiteSoldier)+(access(start.first-3, start.second)==whiteSoldier)+(access(end.first+2, start.second)==whiteSoldier)+(access(end.first+3, start.second)==whiteSoldier);
+			}
+			else if((start.first==end.first)&&(start.second==end.second-2)){
+				hits_unoccupied=(access(start.first, start.second-2)==unoccupied)+(access(start.first, start.second-3)==unoccupied)+(access(end.first, start.second+2)==unoccupied)+(access(end.first, start.second+3)==unoccupied);
+				hits_townhall=(access(start.first, start.second-2)==whiteTownhall)+(access(start.first, start.second-3)==whiteTownhall)+(access(end.first, start.second+2)==whiteTownhall)+(access(end.first, start.second+3)==whiteTownhall);
+				hits_white=(access(start.first, start.second-2)==whiteSoldier)+(access(start.first, start.second-3)==whiteSoldier)+(access(end.first, start.second+2)==whiteSoldier)+(access(end.first, start.second+3)==whiteSoldier);
+			}
+			else if((start.first==end.first)&&(start.second==end.second+2)){
+				hits_unoccupied=(access(start.first, start.second+2)==unoccupied)+(access(start.first, start.second+3)==unoccupied)+(access(end.first, start.second-2)==unoccupied)+(access(end.first, start.second-3)==unoccupied);
+				hits_townhall=(access(start.first, start.second+2)==whiteTownhall)+(access(start.first, start.second+3)==whiteTownhall)+(access(end.first, start.second-2)==whiteTownhall)+(access(end.first, start.second-3)==whiteTownhall);
+				hits_white=(access(start.first, start.second+2)==whiteSoldier)+(access(start.first, start.second+3)==whiteSoldier)+(access(end.first, start.second-2)==whiteSoldier)+(access(end.first, start.second-3)==whiteSoldier);
+			}
+
+			else if((start.first==end.first+2)&&(start.second==end.second+2)){
+				hits_unoccupied=(access(start.first+2, start.second+2)==unoccupied)+(access(start.first+3, start.second+3 )==unoccupied)+(access(end.first-2, end.second-2)==unoccupied)+(access(end.first-3, start.second-3)==unoccupied);
+				hits_townhall=(access(start.first+2, start.second+2)==whiteTownhall)+(access(start.first+3, start.second+3)==whiteTownhall)+(access(end.first-2, end.second-2)==whiteTownhall)+(access(end.first-3, start.second-3)==whiteTownhall);
+				hits_white=(access(start.first+2, start.second+2)==whiteSoldier)+(access(start.first+3, start.second+3)==whiteSoldier)+(access(end.first-2, end.second-2)==whiteSoldier)+(access(end.first-3, start.second-3)==whiteSoldier);
+			}
+			else if((start.first==end.first-2)&&(start.second==end.second+2)){
+				hits_unoccupied=(access(start.first-2, start.second+2)==unoccupied)+(access(start.first-3, start.second+3)==unoccupied)+(access(end.first+2, end.second-2)==unoccupied)+(access(end.first+3, end.second-3)==unoccupied);
+				hits_townhall=(access(start.first-2, start.second+2)==whiteTownhall)+(access(start.first-3, start.second+3)==whiteTownhall)+(access(end.first+2, end.second-2)==whiteTownhall)+(access(end.first+3, end.second-3)==whiteTownhall);
+				hits_white=(access(start.first-2, start.second+2)==whiteSoldier)+(access(start.first-3, start.second+3)==whiteSoldier)+(access(end.first+2, end.second-2)==whiteSoldier)+(access(end.first+3, end.second-3)==whiteSoldier);
+			}
+			else if((start.first==end.first+2)&&(start.second==end.second-2)){
+				hits_unoccupied=(access(start.first+2, start.second-2)==unoccupied)+(access(start.first+3, start.second-3 )==unoccupied)+(access(end.first-2, end.second+2)==unoccupied)+(access(end.first-3, start.second+3)==unoccupied);
+				hits_townhall=(access(start.first+2, start.second-2)==whiteTownhall)+(access(start.first+3, start.second-3)==whiteTownhall)+(access(end.first-2, end.second+2)==whiteTownhall)+(access(end.first-3, start.second+3)==whiteTownhall);
+				hits_white=(access(start.first+2, start.second-2)==whiteSoldier)+(access(start.first+3, start.second-3)==whiteSoldier)+(access(end.first-2, end.second+2)==whiteSoldier)+(access(end.first-3, start.second+3)==whiteSoldier);
+			}
+			else if((start.first==end.first-2)&&(start.second==end.second-2)){
+				hits_unoccupied=(access(start.first-2, start.second-2)==unoccupied)+(access(start.first-3, start.second-3)==unoccupied)+(access(end.first+2, end.second+2)==unoccupied)+(access(end.first+3, end.second+3)==unoccupied);
+				hits_townhall=(access(start.first-2, start.second-2)==whiteTownhall)+(access(start.first-3, start.second-3)==whiteTownhall)+(access(end.first+2, end.second+2)==whiteTownhall)+(access(end.first+3, end.second+3)==whiteTownhall);
+				hits_white=(access(start.first-2, start.second-2)==whiteSoldier)+(access(start.first-3, start.second-3)==whiteSoldier)+(access(end.first+2, end.second+2)==whiteSoldier)+(access(end.first+3, end.second+3)==whiteSoldier);
+			}
+
+
+		}
 
 		
-		return (soldiers*parameters[0])-((2-townhalls)*parameters[1])+(cannons*parameters[2]);
+		return (soldiers*parameters[0])-((2-townhalls)*parameters[5])+(cannons*parameters[1])+(hits_unoccupied*parameters[2])+(hits_white*parameters[3])+(hits_townhall*parameters[4]);
 
 	}
 	int evaluate(bool white)

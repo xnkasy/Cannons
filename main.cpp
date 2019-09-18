@@ -13,7 +13,7 @@ enum state
     whiteSoldier=2
 };
 // clock_t begin;
-ofstream fout;
+//ofstream fout;
 //fout.open("a.txt");
 // enum cannontype
 // {
@@ -215,16 +215,17 @@ class CannonBoard
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								else if(access(i,j+4)==unoccupied)
-								{
-									samestate=true;
-									if(access(i,j+5)==blackSoldier||access(i,j+5)==blackTownhall)
+								if(access(i,j+5)==blackSoldier||access(i,j+5)==blackTownhall)
 									{
 										temp1.shoot(make_pair(i, j+2),make_pair(i,j+5));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
-								}								
+
+								if(access(i,j+4)==unoccupied||access(i,j+5)==unoccupied)
+								{
+									samestate=true;
+																	}								
 							}
 							if(access(i,j-1)==unoccupied)
 							{
@@ -237,15 +238,16 @@ class CannonBoard
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								else if(access(i,j-2)==unoccupied)
-								{
-									samestate=true;
-									if(access(i,j-3)==blackSoldier||access(i,j-3)==blackTownhall)
+								if(access(i,j-3)==blackSoldier||access(i,j-3)==blackTownhall)
 									{
 										temp1.shoot(make_pair(i, j),make_pair(i,j-3));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
+								if(access(i,j-2)==unoccupied||access(i,j+5)==unoccupied)
+								{
+									samestate=true;
+									
 								}								
 							}
 						}
@@ -263,15 +265,16 @@ class CannonBoard
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								else if(access(i+4,j-4)==unoccupied)
-								{
-									samestate=true;
-									if(access(i+5,j-5)==blackSoldier||access(i+5,j-5)==blackTownhall)
+								if(access(i+5,j-5)==blackSoldier||access(i+5,j-5)==blackTownhall)
 									{
 										temp1.shoot(make_pair(i+2, j-2),make_pair(i+5,j-5));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
+								if(access(i+4,j-4)==unoccupied||access(i+5,j-5)==unoccupied)
+								{
+									samestate=true;
+									
 								}								
 							}
 							if(access(i-1,j+1)==unoccupied)
@@ -285,15 +288,16 @@ class CannonBoard
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								else if(access(i-2,j+2)==unoccupied)
-								{
-									samestate=true;
-									if(access(i-3,j+3)==blackSoldier||access(i-3,j+3)==blackTownhall)
+								if(access(i-3,j+3)==blackSoldier||access(i-3,j+3)==blackTownhall)
 									{
 										temp1.shoot(make_pair(i, j),make_pair(i-3,j+3));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
+								if(access(i-2,j+2)==unoccupied||access(i-3,j+3)==unoccupied)
+								{
+									samestate=true;
+									
 								}								
 							}
 						}
@@ -311,15 +315,16 @@ class CannonBoard
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								else if(access(i+4,j+4)==unoccupied)
-								{
-									samestate=true;
-									if(access(i+5,j+5)==blackSoldier||access(i+5,j+5)==blackTownhall)
+								if(access(i+5,j+5)==blackSoldier||access(i+5,j+5)==blackTownhall)
 									{
 										temp1.shoot(make_pair(i+2, j+2),make_pair(i+5,j+5));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
+								if(access(i+4,j+4)==unoccupied||access(i+5,j+5)==unoccupied)
+								{
+									samestate=true;
+									
 								}								
 							}
 							if(access(i-1,j-1)==unoccupied)
@@ -333,15 +338,16 @@ class CannonBoard
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								else if(access(i-2,j-2)==unoccupied)
-								{
-									samestate=true;
-									if(access(i-3,j-3)==blackSoldier||access(i-3,j-3)==blackTownhall)
+								if(access(i-3,j-3)==blackSoldier||access(i-3,j-3)==blackTownhall)
 									{
 										temp1.shoot(make_pair(i, j),make_pair(i-3,j-3));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
+								if(access(i-2,j-2)==unoccupied||access(i-3,j-3)==unoccupied)
+								{
+									samestate=true;
+									
 								}								
 							}
 						}
@@ -359,15 +365,16 @@ class CannonBoard
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								else if(access(i+4,j)==unoccupied)
-								{
-									samestate=true;
-									if(access(i+5,j)==blackSoldier||access(i+5,j)==blackTownhall)
+								if(access(i+5,j)==blackSoldier||access(i+5,j)==blackTownhall)
 									{
 										temp1.shoot(make_pair(i+2, j),make_pair(i+5,j));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
+								if(access(i+4,j)==unoccupied||access(i+5,j)==unoccupied)
+								{
+									samestate=true;
+									
 								}								
 							}
 							if(access(i-1,j)==unoccupied)
@@ -381,15 +388,16 @@ class CannonBoard
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								else if(access(i-2,j)==unoccupied)
-								{
-									samestate=true;
-									if(access(i-3,j)==blackSoldier||access(i-3,j)==blackTownhall)
+								if(access(i-3,j)==blackSoldier||access(i-3,j)==blackTownhall)
 									{
 										temp1.shoot(make_pair(i, j),make_pair(i-3,j));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
+								else if(access(i-2,j)==unoccupied||access(i-3,j)==unoccupied)
+								{
+									samestate=true;
+									
 								}								
 							}
 						}
@@ -460,15 +468,15 @@ class CannonBoard
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								else if(access(i,j+4)==unoccupied)
-								{
-									samestate=true;
-									if(access(i,j+5)==whiteSoldier||access(i,j+5)==whiteTownhall)
+								if(access(i,j+5)==whiteSoldier||access(i,j+5)==whiteTownhall)
 									{
 										temp1.shoot(make_pair(i, j+2),make_pair(i,j+5));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
+								if(access(i,j+4)==unoccupied||access(i,j+5)==unoccupied)
+								{
+									samestate=true;
 								}								
 							}
 							if(access(i,j-1)==unoccupied)
@@ -482,15 +490,16 @@ class CannonBoard
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								else if(access(i,j-2)==unoccupied)
-								{
-									samestate=true;
-									if(access(i,j-3)==whiteSoldier||access(i,j-3)==whiteTownhall)
+								if(access(i,j-3)==whiteSoldier||access(i,j-3)==whiteTownhall)
 									{
 										temp1.shoot(make_pair(i, j),make_pair(i,j-3));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
+								if(access(i,j-2)==unoccupied||access(i,j-3)==unoccupied)
+								{
+									samestate=true;
+									
 								}								
 							}
 						}
@@ -508,15 +517,16 @@ class CannonBoard
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								else if(access(i+4,j-4)==unoccupied)
-								{
-									samestate=true;
-									if(access(i+5,j-5)==whiteSoldier||access(i+5,j-5)==whiteTownhall)
+								if(access(i+5,j-5)==whiteSoldier||access(i+5,j-5)==whiteTownhall)
 									{
 										temp1.shoot(make_pair(i+2, j-2),make_pair(i+5,j-5));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
+								if(access(i+4,j-4)==unoccupied||access(i+5,j-5)==unoccupied)
+								{
+									samestate=true;
+									
 								}								
 							}
 							if(access(i-1,j+1)==unoccupied)
@@ -530,15 +540,16 @@ class CannonBoard
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								else if(access(i-2,j+2)==unoccupied)
-								{
-									samestate=true;
-									if(access(i-3,j+3)==whiteSoldier||access(i-3,j+3)==whiteTownhall)
+								if(access(i-3,j+3)==whiteSoldier||access(i-3,j+3)==whiteTownhall)
 									{
 										temp1.shoot(make_pair(i, j),make_pair(i-3,j+3));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
+								if(access(i-2,j+2)==unoccupied||access(i-3,j+3)==unoccupied)
+								{
+									samestate=true;
+									
 								}								
 							}
 						}
@@ -556,15 +567,16 @@ class CannonBoard
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								else if(access(i+4,j+4)==unoccupied)
-								{
-									samestate=true;
-									if(access(i+5,j+5)==whiteSoldier||access(i+5,j+5)==whiteTownhall)
+								if(access(i+5,j+5)==whiteSoldier||access(i+5,j+5)==whiteTownhall)
 									{
 										temp1.shoot(make_pair(i+2, j+2),make_pair(i+5,j+5));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
+								if(access(i+4,j+4)==unoccupied||access(i+5,j+5)==unoccupied)
+								{
+									samestate=true;
+									
 								}								
 							}
 							if(access(i-1,j-1)==unoccupied)
@@ -578,15 +590,15 @@ class CannonBoard
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								else if(access(i-2,j-2)==unoccupied)
-								{
-									samestate=true;
-									if(access(i-3,j-3)==whiteSoldier||access(i-3,j-3)==whiteTownhall)
+								if(access(i-3,j-3)==whiteSoldier||access(i-3,j-3)==whiteTownhall)
 									{
 										temp1.shoot(make_pair(i, j),make_pair(i-3,j-3));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
+								if(access(i-2,j-2)==unoccupied||access(i-3,j-3)==unoccupied)
+								{
+									samestate=true;									
 								}								
 							}
 						}
@@ -604,15 +616,16 @@ class CannonBoard
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								else if(access(i+4,j)==unoccupied)
-								{
-									samestate=true;
-									if(access(i+5,j)==whiteSoldier||access(i+5,j)==whiteTownhall)
+								if(access(i+5,j)==whiteSoldier||access(i+5,j)==whiteTownhall)
 									{
 										temp1.shoot(make_pair(i+2, j),make_pair(i+5,j));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
+								if(access(i+4,j)==unoccupied||access(i+5,j)==unoccupied)
+								{
+									samestate=true;
+									
 								}								
 							}
 							if(access(i-1,j)==unoccupied)
@@ -626,15 +639,16 @@ class CannonBoard
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								else if(access(i-2,j)==unoccupied)
-								{
-									samestate=true;
-									if(access(i-3,j)==whiteSoldier||access(i-3,j)==whiteTownhall)
+								if(access(i-3,j)==whiteSoldier||access(i-3,j)==whiteTownhall)
 									{
 										temp1.shoot(make_pair(i, j),make_pair(i-3,j));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
+								if(access(i-2,j)==unoccupied||access(i-3,j)==unoccupied)
+								{
+									samestate=true;
+									
 								}								
 							}
 						}
@@ -980,17 +994,18 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 									return (string)"S "+to_string(i)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i)+ (string)" "+to_string(j+4);
 								temp1=temp2;
 							}
-							else if(initial.access(i,j+4)==unoccupied)
-							{
-								if(temp1==final)
-									return (string)"S "+to_string(i)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i)+ (string)" "+to_string(j+4);
-								if(initial.access(i,j+5)==blackSoldier||initial.access(i,j+5)==blackTownhall)
+							if(initial.access(i,j+5)==blackSoldier||initial.access(i,j+5)==blackTownhall)
 								{
 									temp1.shoot(make_pair(i, j+2),make_pair(i,j+5));
 									if(temp1==final)
 										return (string)"S "+to_string(i)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i)+ (string)" "+to_string(j+5);
 									temp1=temp2;
 								}
+							if(initial.access(i,j+4)==unoccupied||initial.access(i,j+5)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"S "+to_string(i)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i)+ (string)" "+to_string(j+4);
+								
 							}								
 						}
 						if(initial.access(i,j-1)==unoccupied)
@@ -1006,17 +1021,18 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j-2);
 								temp1=temp2;
 							}
-							else if(initial.access(i,j-2)==unoccupied)
-							{
-								if(temp1==final)
-									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j-2);
-								if(initial.access(i,j-3)==blackSoldier||initial.access(i,j-3)==blackTownhall)
+							if(initial.access(i,j-3)==blackSoldier||initial.access(i,j-3)==blackTownhall)
 								{
 									temp1.shoot(make_pair(i, j),make_pair(i,j-3));
 									if(temp1==final)
 										return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j-3);
 									temp1=temp2;
 								}
+							if(initial.access(i,j-2)==unoccupied||initial.access(i,j-3)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j-2);
+								
 							}								
 						}
 					}
@@ -1036,17 +1052,18 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 									return (string)"S "+to_string(i+2)+(string)" "+to_string(j-2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j-4);
 								temp1=temp2;
 							}
-							else if(initial.access(i+4,j-4)==unoccupied)
-							{
-								if(temp1==final)
-									return (string)"S "+to_string(i+2)+(string)" "+to_string(j-2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j-4);
-								if(initial.access(i+5,j-5)==blackSoldier||initial.access(i+5,j-5)==blackTownhall)
+							if(initial.access(i+5,j-5)==blackSoldier||initial.access(i+5,j-5)==blackTownhall)
 								{
 									temp1.shoot(make_pair(i+2, j-2),make_pair(i+5,j-5));
 									if(temp1==final)
 										return (string)"S "+to_string(i+2)+(string)" "+to_string(j-2)+ (string)" B "+to_string(i+5)+ (string)" "+to_string(j-5);
 									temp1=temp2;
 								}
+							if(initial.access(i+4,j-4)==unoccupied||initial.access(i+5,j-5)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"S "+to_string(i+2)+(string)" "+to_string(j-2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j-4);
+								
 							}								
 						}
 						if(initial.access(i-1,j+1)==unoccupied)
@@ -1062,17 +1079,18 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j+2);
 								temp1=temp2;
 							}
-							else if(initial.access(i-2,j+2)==unoccupied)
-							{
-								if(temp1==final)
-									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j+2);
-								if(initial.access(i-3,j+3)==blackSoldier||initial.access(i-3,j+3)==blackTownhall)
+							if(initial.access(i-3,j+3)==blackSoldier||initial.access(i-3,j+3)==blackTownhall)
 								{
 									temp1.shoot(make_pair(i, j),make_pair(i-3,j+3));
 									if(temp1==final)
 									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-3)+ (string)" "+to_string(j+3);
 									temp1=temp2;
 								}
+							if(initial.access(i-2,j+2)==unoccupied||initial.access(i-3,j+3)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j+2);
+								
 							}								
 						}
 					}
@@ -1092,17 +1110,18 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 									return (string)"S "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j+4);
 								temp1=temp2;
 							}
-							else if(initial.access(i+4,j+4)==unoccupied)
-							{
-								if(temp1==final)
-									return (string)"S "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j+4);
-								if(initial.access(i+5,j+5)==blackSoldier||initial.access(i+5,j+5)==blackTownhall)
+							if(initial.access(i+5,j+5)==blackSoldier||initial.access(i+5,j+5)==blackTownhall)
 								{
 									temp1.shoot(make_pair(i+2, j+2),make_pair(i+5,j+5));
 									if(temp1==final)
 										return (string)"S "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+5)+ (string)" "+to_string(j+5);
 									temp1=temp2;
 								}
+							if(initial.access(i+4,j+4)==unoccupied||initial.access(i+5,j+5)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"S "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j+4);
+								
 							}								
 						}
 						if(initial.access(i-1,j-1)==unoccupied)
@@ -1118,17 +1137,18 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j-2);
 								temp1=temp2;
 							}
-							else if(initial.access(i-2,j-2)==unoccupied)
-							{
-								if(temp1==final)
-									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j);
-								if(initial.access(i-3,j-3)==blackSoldier||initial.access(i-3,j-3)==blackTownhall)
+							if(initial.access(i-3,j-3)==blackSoldier||initial.access(i-3,j-3)==blackTownhall)
 								{
 									temp1.shoot(make_pair(i, j),make_pair(i-3,j-3));
 									if(temp1==final)
 										return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-3)+ (string)" "+to_string(j-3);
 									temp1=temp2;
 								}
+							if(initial.access(i-2,j-2)==unoccupied||initial.access(i-3,j-3)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j);
+								
 							}								
 						}
 					}
@@ -1148,17 +1168,18 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 									return (string)"S "+to_string(i+2)+(string)" "+to_string(j)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j);
 								temp1=temp2;
 							}
-							else if(initial.access(i+4,j)==unoccupied)
-							{
-								if(temp1==final)
-									return (string)"S "+to_string(i+2)+(string)" "+to_string(j)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j);
-								if(initial.access(i+5,j)==blackSoldier||initial.access(i+5,j)==blackTownhall)
+							if(initial.access(i+5,j)==blackSoldier||initial.access(i+5,j)==blackTownhall)
 								{
 									temp1.shoot(make_pair(i+2, j),make_pair(i+5,j));
 									if(temp1==final)
 										return (string)"S "+to_string(i+2)+(string)" "+to_string(j)+ (string)" B "+to_string(i+5)+ (string)" "+to_string(j);
 									temp1=temp2;
 								}
+							if(initial.access(i+4,j)==unoccupied||initial.access(i+5,j)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"S "+to_string(i+2)+(string)" "+to_string(j)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j);
+								
 							}								
 						}
 						if(initial.access(i-1,j)==unoccupied)
@@ -1174,17 +1195,18 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j);
 								temp1=temp2;
 							}
-							else if(initial.access(i-2,j)==unoccupied)
-							{
-								if(temp1==final)
-									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j);
-								if(initial.access(i-3,j)==blackSoldier||initial.access(i-3,j)==blackTownhall)
+							if(initial.access(i-3,j)==blackSoldier||initial.access(i-3,j)==blackTownhall)
 								{
 									temp1.shoot(make_pair(i, j),make_pair(i-3,j));
 									if(temp1==final)
 										return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-3)+ (string)" "+to_string(j);
 									temp1=temp2;
 								}
+							if(initial.access(i-2,j)==unoccupied||initial.access(i-3,j)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j);
+								
 							}								
 						}
 					}
@@ -1268,17 +1290,18 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 									return (string)"S "+to_string(i)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i)+ (string)" "+to_string(j+4);
 								temp1=temp2;
 							}
-							else if(initial.access(i,j+4)==unoccupied)
-							{
-								if(temp1==final)
-									return (string)"S "+to_string(i)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i)+ (string)" "+to_string(j+4);
-								if(initial.access(i,j+5)==whiteSoldier||initial.access(i,j+5)==whiteTownhall)
+							if(initial.access(i,j+5)==whiteSoldier||initial.access(i,j+5)==whiteTownhall)
 								{
 									temp1.shoot(make_pair(i, j+2),make_pair(i,j+5));
 									if(temp1==final)
 										return (string)"S "+to_string(i)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i)+ (string)" "+to_string(j+5);
 									temp1=temp2;
 								}
+							if(initial.access(i,j+4)==unoccupied||initial.access(i,j+5)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"S "+to_string(i)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i)+ (string)" "+to_string(j+4);
+								
 							}								
 						}
 						if(initial.access(i,j-1)==unoccupied)
@@ -1294,17 +1317,18 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j-2);
 								temp1=temp2;
 							}
-							else if(initial.access(i,j-2)==unoccupied)
-							{
-								if(temp1==final)
-									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j-2);
-								if(initial.access(i,j-3)==whiteSoldier||initial.access(i,j-3)==whiteTownhall)
+							if(initial.access(i,j-3)==whiteSoldier||initial.access(i,j-3)==whiteTownhall)
 								{
 									temp1.shoot(make_pair(i, j),make_pair(i,j-3));
 									if(temp1==final)
 										return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j-3);
 									temp1=temp2;
 								}
+							if(initial.access(i,j-2)==unoccupied||initial.access(i,j-3)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i)+ (string)" "+to_string(j-2);
+								
 							}								
 						}
 					}
@@ -1324,17 +1348,18 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 									return (string)"S "+to_string(i+2)+(string)" "+to_string(j-2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j-4);
 								temp1=temp2;
 							}
-							else if(initial.access(i+4,j-4)==unoccupied)
-							{
-								if(temp1==final)
-									return (string)"S "+to_string(i+2)+(string)" "+to_string(j-2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j-4);
-								if(initial.access(i+5,j-5)==whiteSoldier||initial.access(i+5,j-5)==whiteTownhall)
+							if(initial.access(i+5,j-5)==whiteSoldier||initial.access(i+5,j-5)==whiteTownhall)
 								{
 									temp1.shoot(make_pair(i+2, j-2),make_pair(i+5,j-5));
 									if(temp1==final)
 										return (string)"S "+to_string(i+2)+(string)" "+to_string(j-2)+ (string)" B "+to_string(i+5)+ (string)" "+to_string(j-5);
 									temp1=temp2;
 								}
+							if(initial.access(i+4,j-4)==unoccupied||initial.access(i+5,j-5)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"S "+to_string(i+2)+(string)" "+to_string(j-2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j-4);
+								
 							}								
 						}
 						if(initial.access(i-1,j+1)==unoccupied)
@@ -1350,17 +1375,18 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j+2);
 								temp1=temp2;
 							}
-							else if(initial.access(i-2,j+2)==unoccupied)
-							{
-								if(temp1==final)
-									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j+2);
-								if(initial.access(i-3,j+3)==whiteSoldier||initial.access(i-3,j+3)==whiteTownhall)
+							if(initial.access(i-3,j+3)==whiteSoldier||initial.access(i-3,j+3)==whiteTownhall)
 								{
 									temp1.shoot(make_pair(i, j),make_pair(i-3,j+3));
 									if(temp1==final)
 									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-3)+ (string)" "+to_string(j+3);
 									temp1=temp2;
 								}
+							if(initial.access(i-2,j+2)==unoccupied||initial.access(i-3,j+3)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j+2);
+								
 							}								
 						}
 					}
@@ -1380,17 +1406,18 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 									return (string)"S "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j+4);
 								temp1=temp2;
 							}
-							else if(initial.access(i+4,j+4)==unoccupied)
-							{
-								if(temp1==final)
-									return (string)"S "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j+4);
-								if(initial.access(i+5,j+5)==whiteSoldier||initial.access(i+5,j+5)==whiteTownhall)
+							if(initial.access(i+5,j+5)==whiteSoldier||initial.access(i+5,j+5)==whiteTownhall)
 								{
 									temp1.shoot(make_pair(i+2, j+2),make_pair(i+5,j+5));
 									if(temp1==final)
 									return (string)"S "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+5)+ (string)" "+to_string(j+5);
 									temp1=temp2;
 								}
+							if(initial.access(i+4,j+4)==unoccupied||initial.access(i+5,j+5)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"S "+to_string(i+2)+(string)" "+to_string(j+2)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j+4);
+								
 							}								
 						}
 						if(initial.access(i-1,j-1)==unoccupied)
@@ -1406,17 +1433,18 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j-2);
 								temp1=temp2;
 							}
-							else if(initial.access(i-2,j-2)==unoccupied)
-							{
-								if(temp1==final)
-									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j-2);
-								if(initial.access(i-3,j-3)==whiteSoldier||initial.access(i-3,j-3)==whiteTownhall)
+							if(initial.access(i-3,j-3)==whiteSoldier||initial.access(i-3,j-3)==whiteTownhall)
 								{
 									temp1.shoot(make_pair(i, j),make_pair(i-3,j-3));
 									if(temp1==final)
 										return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-3)+ (string)" "+to_string(j-3);
 									temp1=temp2;
 								}
+							if(initial.access(i-2,j-2)==unoccupied||initial.access(i-3,j-3)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j-2);
+								
 							}								
 						}
 					}
@@ -1436,17 +1464,18 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 									return (string)"S "+to_string(i+2)+(string)" "+to_string(j)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j);
 								temp1=temp2;
 							}
-							else if(initial.access(i+4,j)==unoccupied)
-							{
-								if(temp1==final)
-									return (string)"S "+to_string(i+2)+(string)" "+to_string(j)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j);
-								if(initial.access(i+5,j)==whiteSoldier||initial.access(i+5,j)==whiteTownhall)
+							if(initial.access(i+5,j)==whiteSoldier||initial.access(i+5,j)==whiteTownhall)
 								{
 									temp1.shoot(make_pair(i+2, j),make_pair(i+5,j));
 									if(temp1==final)
 										return (string)"S "+to_string(i+2)+(string)" "+to_string(j)+ (string)" B "+to_string(i+5)+ (string)" "+to_string(j);
 									temp1=temp2;
 								}
+							if(initial.access(i+4,j)==unoccupied||initial.access(i+5,j)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"S "+to_string(i+2)+(string)" "+to_string(j)+ (string)" B "+to_string(i+4)+ (string)" "+to_string(j);
+								
 							}								
 						}
 						if(initial.access(i-1,j)==unoccupied)
@@ -1462,17 +1491,18 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j);
 								temp1=temp2;
 							}
-							else if(initial.access(i-2,j)==unoccupied)
-							{
-								if(temp1==final)
-									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j);
-								if(initial.access(i-3,j)==whiteSoldier||initial.access(i-3,j)==whiteTownhall)
+							if(initial.access(i-3,j)==whiteSoldier||initial.access(i-3,j)==whiteTownhall)
 								{
 									temp1.shoot(make_pair(i, j),make_pair(i-3,j));
 									if(temp1==final)
 										return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-3)+ (string)" "+to_string(j);
 									temp1=temp2;
 								}
+							if(initial.access(i-2,j)==unoccupied||initial.access(i-3,j)==unoccupied)
+							{
+								if(temp1==final)
+									return (string)"S "+to_string(i)+(string)" "+to_string(j)+ (string)" B "+to_string(i-2)+ (string)" "+to_string(j);
+								
 							}								
 						}
 					}
@@ -1713,14 +1743,14 @@ int main()
 			 	AImove=select_move(ourBoard, 1, false, false);
 			else if(time_spent>=75000){
 				AImove=select_move(ourBoard, 3, false, false);
-				fout<<time_spent<<" 1"<<endl;
+				//fout<<time_spent<<" 1"<<endl;
 			}
 			// else if (soldiers<3){
 			// 	AImove=select_move(ourBoard, 5, true, true);
 			// }
 			else{
 			 	AImove=select_move(ourBoard, 4, false, false);
-			 	fout<<time_spent<<" 2"<<endl;
+			 	//fout<<time_spent<<" 2"<<endl;
 			}
 
 			vector<string> S=split(AImove," ");

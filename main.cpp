@@ -3,8 +3,6 @@
 #include <string>
 #include <fstream>
 #include <chrono>  
-#include <unordered_map>
-#include <map>
 using namespace std;
 enum state 
 {   blackTownhall=-1, 
@@ -14,8 +12,6 @@ enum state
     blackSoldier= -2,
     whiteSoldier=2
 };
-long bottleneck_size=30;
-
 // clock_t begin;
 //ofstream fout;
 //fout.open("a.txt");
@@ -58,7 +54,7 @@ class CannonBoard
 	{
 		board=copyCannon.getBoard();
 	}
-	state access(int i, int j) const
+	state access(int i, int j)
 	{
 		if(i<8&&j<8&&i>=0&&j>=0)
 			return board[i][j];
@@ -71,19 +67,6 @@ class CannonBoard
 			for(int j=0;j<8;++j)
 			{
 				if(other.access(i,j)!=access(i, j))
-					return false;
-			}
-		}	
-		return true;	
-
-	}
-	bool operator < (const CannonBoard &other) const
-	{
-		for(int i=0;i<8;i++)
-		{
-			for(int j=0;j<8;++j)
-			{
-				if(other.access(i,j)<access(i, j))
 					return false;
 			}
 		}	
@@ -925,38 +908,6 @@ class CannonBoard
 	}
 
 };
-class hashmaps{
-	map<pair<CannonBoard, bool>, long> mainMap;
-	vector< pair<CannonBoard, bool> > lastUsed;
-	public:
-	void Add(CannonBoard element, bool b, long eval)
-	{
-		if(mainMap.size()>=bottleneck_size){
-			mainMap.erase(lastUsed[0]);
-			lastUsed.erase(lastUsed.begin());
-			mainMap.insert(make_pair(make_pair(element, b), eval));
-			lastUsed.push_back(make_pair(element, b));
-		}
-		else{
-			mainMap.insert(make_pair(make_pair(element, b), eval));
-			lastUsed.push_back(make_pair(element, b));
-		}
-	}
-	long findeval(CannonBoard elem, bool b){
-			if(mainMap.find(make_pair(elem, b))==mainMap.end())
-				throw "NotFound";
-			else
-				mainMap.find(make_pair(elem, b));
-	}
-	bool find(CannonBoard elem, bool b){
-			if(mainMap.find(make_pair(elem, b))==mainMap.end())
-				return false;
-			else
-				return true;
-	}
-	
-};
-hashmaps boardMap;
 
 
 
@@ -1607,28 +1558,15 @@ int max_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 	//cout<<"min value action after possibleStates with depth "<<depth<<endl;
 	int max=INT_MIN;
 	CannonBoard best_child;
-	if(depth==0){
-		if(boardMap.find(present, white))
-			return boardMap.findeval(present, white);
-		else{
-			long temp=present.evaluate(white);
-			boardMap.Add(present, white, temp);
-			return temp;
-		}
-	}
+	if(depth==0)
+		return present.evaluate(white);
 	if(successors.size()==0)
 		return 0;
 	for(auto it=successors.begin();it!=successors.end();it++){
 		int minVal;
 		if(depth==1){
 			//cout<<"went all the way max, value given is"<<it->evaluate(white)<<endl;
-			if(boardMap.find(*it, white))
-				minVal=boardMap.findeval(*it, white);//changed
-			else{
-				long temp=it->evaluate(white);
-				boardMap.Add(*it, white, temp);
-				minVal= temp;
-			}
+			minVal=it->evaluate(white);//changed
 		}
 		else{
 			minVal=min_value_action(*it, depth-1, white, alpha, beta, !who);
@@ -1661,15 +1599,7 @@ int min_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 	int min=INT_MAX;
 	CannonBoard best_child;
 	if(depth==0)
-		{
-		if(boardMap.find(present, white))
-			return boardMap.findeval(present, white);
-		else{
-			long temp=present.evaluate(white);
-			boardMap.Add(present, white, temp);
-			return temp;
-		}
-	}
+		return present.evaluate(white);
 	if(successors.size()==0)
 		return 0;
 	for(auto it=successors.begin();it!=successors.end();it++){
@@ -1679,13 +1609,7 @@ int min_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 		if(depth==1){
 			//cout<<"went all the way min, value given is"<<it->evaluate(white)<<endl;
 			//it->print();
-			if(boardMap.find(*it, white))
-				maxVal=boardMap.findeval(*it, white);//changed
-			else{
-				long temp=it->evaluate(white);
-				boardMap.Add(*it, white, temp);
-				maxVal= temp;
-			}
+			maxVal=it->evaluate(white);//changed
 
 		}
 		else{

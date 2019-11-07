@@ -2,9 +2,10 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include <chrono>  
-#include <unordered_map>
+#include <chrono> 
 #include <map>
+#include <sstream>
+#include <unordered_map> 
 using namespace std;
 enum state 
 {   blackTownhall=-1, 
@@ -14,11 +15,18 @@ enum state
     blackSoldier= -2,
     whiteSoldier=2
 };
-long bottleneck_size=100;
-ofstream fout("out.txt");
+enum move_type 
+{   norm_move=0,
+	bomb_empty=1,
+	kill_soldier=2, 
+    bomb_soldier =3, 
+    bomb_townhall=11,
+    kill_townhall=10
+};
+std::chrono::time_point<std::chrono::system_clock> begint;
+std::chrono::time_point<std::chrono::system_clock> begintt;
 // clock_t begin;
-//ofstream fout;
-//fout.open("a.txt");
+ofstream fout("output2.txt");
 // enum cannontype
 // {
 // 	vertical=0,
@@ -32,8 +40,9 @@ vector<state> seedVec(8, unoccupied);
 class CannonBoard
 {
 	vector< vector<state> > board;
-
+	
 	public:
+	string sig="";
 	CannonBoard(): board(8, seedVec)
 	{
 		for(int i=0;i<8;i++){
@@ -48,11 +57,17 @@ class CannonBoard
 					board[i][j]=blackTownhall;
 			}
 		}
+		//sig=sprint();
 	}
 
 	 vector< vector<state> >  getBoard() const
 	{
 		return board;
+	}
+	CannonBoard(const CannonBoard &copyCannon): board(8, seedVec)
+	{
+		board=copyCannon.getBoard();
+		//sig=sprint();
 	}
 	state access(int i, int j) const
 	{
@@ -60,15 +75,6 @@ class CannonBoard
 			return board[i][j];
 		return null;
 	}
-	CannonBoard(const CannonBoard &copyCannon): board(8, seedVec) 
-	{
-		for(int i=0;i<8;i++){
-			for(int j=0;j<8;++j){
-				board[i][j]=copyCannon.access(i, j);
-			}
-		}
-	}
-	
 	bool operator == (const CannonBoard &other) const
 	{
 		for(int i=0;i<8;i++)
@@ -82,18 +88,20 @@ class CannonBoard
 		return true;	
 
 	}
-	bool operator < (const CannonBoard &other) const
+	string sprint() const
 	{
-		int sum1=0, sum2=0;
-		for(int i=0;i<8;i++)
-		{
-			for(int j=0;j<8;++j)
-			{
-				sum1=sum1+access(i, j);
-				sum2=sum2+other.access(i, j);
+		stringstream ss;
+		for(int i=0;i<8;i++){
+			for(int j=0;j<8;j++){
+				ss<<board[i][j];
 			}
-		}	
-		return sum1<sum2;	
+		}
+		return ss.str();   
+	}
+		bool operator < (const CannonBoard &other) const
+	{
+		std::hash<string> str_hash;
+		return str_hash(sprint())<str_hash(other.sprint());	
 
 	}
 	int sum( ) const
@@ -108,18 +116,47 @@ class CannonBoard
 			}	
 		return sum;
 	}
+	
 	bool move(pair<int, int> start, pair<int, int> end)
 	{
 		state dum=board[start.first][start.second];
 		board[start.first][start.second]=unoccupied;
 		board[end.first][end.second]=dum;
+		//sig[start.first*7+start.second]=char(unoccupied);
+		//sig[end.first*7+end.second]=char(dum);
 		return true;
+	}
+	move_type smart_move(pair<int, int> start, pair<int, int> end)
+	{
+		state dum=board[start.first][start.second];
+		board[start.first][start.second]=unoccupied;
+		board[end.first][end.second]=dum;
+		if(board[end.first][end.second]==unoccupied)
+			return norm_move;
+		else if(board[end.first][end.second]==abs(blackSoldier))
+			return kill_soldier;
+		else
+			return kill_townhall;
+		//return true;
 	}
 	bool shoot(pair<int, int> start, pair<int, int> end)
 	{
 
 		board[end.first][end.second]=unoccupied;
+		//sig[end.first*7+end.second]=char(unoccupied);
 		return true;
+	}
+	move_type smart_shoot(pair<int, int> start, pair<int, int> end)
+	{
+
+		board[end.first][end.second]=unoccupied;
+		if(board[end.first][end.second]==unoccupied)
+			return bomb_empty;
+		else if(board[end.first][end.second]==abs(blackSoldier))
+			return bomb_soldier;
+		else
+			return bomb_townhall;
+		//return true;
 	}
 	vector<pair< pair<int,int>,pair<int,int> > > getCannons_white()
 	{
@@ -171,7 +208,6 @@ class CannonBoard
 		return s;
 	}
 
-
 	vector<CannonBoard> possibleStates(bool white) //rk:removed else from else ifs
 	{
 
@@ -182,33 +218,401 @@ class CannonBoard
 		if(white){
 			for(int i=0;i<8;i++){
 				for(int j=0;j<8;++j){
-					//fout<<"at "<<i<<", "<<j<<endl;
-					//fout<<board[i][j]<<" ";
 					if(board[i][j]==whiteSoldier)
 					{
-						//fout<<"white"<<endl;
-						if(access(i+1, j)==unoccupied||access(i+1, j)==blackSoldier||access(i+1, j)==blackTownhall){
+						if(access(i+1, j)==blackTownhall){
 							temp1.move(make_pair(i, j), make_pair(i+1, j));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
 						}
-						if(access(i+1, j+1)==unoccupied||access(i+1, j+1)==blackSoldier||access(i+1, j+1)==blackTownhall){
+						if(access(i+1, j+1)==blackTownhall){
 							temp1.move(make_pair(i, j), make_pair(i+1, j+1));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
 						}
-						if(access(i+1, j-1)==unoccupied||access(i+1, j-1)==blackSoldier||access(i+1, j-1)==blackTownhall){
+						if(access(i+1, j-1)==blackTownhall){
 							temp1.move(make_pair(i, j), make_pair(i+1, j-1));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
 						}
-						if(access(i, j+1)==blackSoldier||access(i, j+1)==blackTownhall){
+						if(access(i, j+1)==blackTownhall){
 							temp1.move(make_pair(i, j), make_pair(i, j+1));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
 						}
-						if(access(i, j-1)==blackSoldier||access(i, j-1)==blackTownhall){
+						if(access(i, j-1)==blackTownhall){
 							temp1.move(make_pair(i, j), make_pair(i, j-1));
+							possibleBoards.push_back(temp1);
+							temp1=temp2;
+						}
+						//cout<<"at "<<i<<", "<<j<<"before cannons"<<endl;
+						//cannons
+						if(access(i, j+1)==whiteSoldier&&access(i, j+2)==whiteSoldier)
+						{
+							if(access(i,j+3)==unoccupied)
+							{
+								if(access(i,j+4)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i, j+2),make_pair(i,j+4));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i,j+5)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i, j+2),make_pair(i,j+5));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i,j+4)==unoccupied||access(i,j+5)==unoccupied)
+								{
+									samestate=true;
+								}								
+							}
+							if(access(i,j-1)==unoccupied)
+							{
+								if(access(i,j-2)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i,j-2));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i,j-3)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i,j-3));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i,j-2)==unoccupied||access(i,j+5)==unoccupied)
+								{
+									samestate=true;	
+								}								
+							}
+						}
+
+						if(access(i+1, j-1)==whiteSoldier&&access(i+2, j-2)==whiteSoldier)
+						{
+							if(access(i+3,j-3)==unoccupied)
+							{
+								if(access(i+4,j-4)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i+2, j-2),make_pair(i+4,j-4));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i+5,j-5)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i+2, j-2),make_pair(i+5,j-5));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i+4,j-4)==unoccupied||access(i+5,j-5)==unoccupied)
+								{
+									samestate=true;	
+								}								
+							}
+							if(access(i-1,j+1)==unoccupied)
+							{
+								if(access(i-2,j+2)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-2,j+2));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i-3,j+3)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-3,j+3));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i-3,j+3)==unoccupied)
+								{
+									samestate=true;	
+								}								
+							}
+						}
+
+						if(access(i+1, j+1)==whiteSoldier&&access(i+2, j+2)==whiteSoldier)
+						{
+							if(access(i+3,j+3)==unoccupied)
+							{
+								if(access(i+4,j+4)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i+2, j+2),make_pair(i+2,j+4));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i+5,j+5)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i+2, j+2),make_pair(i+5,j+5));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i+4,j+4)==unoccupied||access(i+5,j+5)==unoccupied)
+								{
+									samestate=true;
+									
+								}								
+							}
+							if(access(i-1,j-1)==unoccupied)
+							{
+								if(access(i-2,j-2)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-2,j-2));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i-3,j-3)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-3,j-3));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i-2,j-2)==unoccupied||access(i-3,j-3)==unoccupied)
+								{
+									samestate=true;
+									
+								}								
+							}
+						}
+						//cout<<"at "<<i<<", "<<j<<"before retreat"<<endl;
+						if(access(i+1, j)==whiteSoldier&&access(i+2, j)==whiteSoldier)
+						{
+							if(access(i+3,j)==unoccupied)
+							{
+								temp1.move(make_pair(i, j), make_pair(i+3, j));
+								possibleBoards.push_back(temp1);
+								temp1=temp2;
+								if(access(i+4,j)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i+2, j),make_pair(i+4,j));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i+5,j)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i+2, j),make_pair(i+5,j));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i+4,j)==unoccupied||access(i+5,j)==unoccupied)
+								{
+									samestate=true;
+									
+								}								
+							}
+							if(access(i-1,j)==unoccupied)
+							{
+								if(access(i-2,j)==blackTownhall)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-2,j));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i-3,j)==blackTownhall)
+									{
+										temp1.shoot(make_pair(i, j),make_pair(i-3,j));
+										possibleBoards.push_back(temp1);
+										temp1=temp2;
+									}
+								else if(access(i-2,j)==unoccupied||access(i-3,j)==unoccupied)
+								{
+									samestate=true;	
+								}								
+							}
+						}
+						//end cannon moves/shoots
+					}
+				}
+			}
+
+			for(int i=0;i<8;i++){
+				for(int j=0;j<8;++j){
+					if(board[i][j]==whiteSoldier)
+					{
+						if(access(i+1, j)==blackSoldier){
+							temp1.move(make_pair(i, j), make_pair(i+1, j));
+							possibleBoards.push_back(temp1);
+							temp1=temp2;
+						}
+						if(access(i+1, j+1)==blackSoldier){
+							temp1.move(make_pair(i, j), make_pair(i+1, j+1));
+							possibleBoards.push_back(temp1);
+							temp1=temp2;
+						}
+						if(access(i+1, j-1)==blackSoldier){
+							temp1.move(make_pair(i, j), make_pair(i+1, j-1));
+							possibleBoards.push_back(temp1);
+							temp1=temp2;
+						}
+						if(access(i, j+1)==blackSoldier){
+							temp1.move(make_pair(i, j), make_pair(i, j+1));
+							possibleBoards.push_back(temp1);
+							temp1=temp2;
+						}
+						if(access(i, j-1)==blackSoldier){
+							temp1.move(make_pair(i, j), make_pair(i, j-1));
+							possibleBoards.push_back(temp1);
+							temp1=temp2;
+						}
+
+						//cout<<"at "<<i<<", "<<j<<"before cannons"<<endl;
+						//cannons
+						if(access(i, j+1)==whiteSoldier&&access(i, j+2)==whiteSoldier)
+						{
+							if(access(i,j+3)==unoccupied)
+							{
+								if(access(i,j+4)==blackSoldier)
+								{
+									temp1.shoot(make_pair(i, j+2),make_pair(i,j+4));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i,j+5)==blackSoldier)
+									{
+										temp1.shoot(make_pair(i, j+2),make_pair(i,j+5));
+										possibleBoards.push_back(temp1);
+										temp1=temp2;
+									}								
+							}
+							if(access(i,j-1)==unoccupied)
+							{
+								if(access(i,j-2)==blackSoldier)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i,j-2));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i,j-3)==blackSoldier)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i,j-3));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}							
+							}
+						}
+
+						if(access(i+1, j-1)==whiteSoldier&&access(i+2, j-2)==whiteSoldier)
+						{
+							if(access(i+3,j-3)==unoccupied)
+							{
+								if(access(i+4,j-4)==blackSoldier)
+								{
+									temp1.shoot(make_pair(i+2, j-2),make_pair(i+4,j-4));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i+5,j-5)==blackSoldier)
+									{
+										temp1.shoot(make_pair(i+2, j-2),make_pair(i+5,j-5));
+										possibleBoards.push_back(temp1);
+										temp1=temp2;
+									}								
+							}
+							if(access(i-1,j+1)==unoccupied)
+							{
+								if(access(i-2,j+2)==blackSoldier)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-2,j+2));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i-3,j+3)==blackSoldier)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-3,j+3));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}							
+							}
+						}
+
+						if(access(i+1, j+1)==whiteSoldier&&access(i+2, j+2)==whiteSoldier)
+						{
+							if(access(i+3,j+3)==unoccupied)
+							{
+								if(access(i+4,j+4)==blackSoldier)
+								{
+									temp1.shoot(make_pair(i+2, j+2),make_pair(i+2,j+4));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i+5,j+5)==blackSoldier)
+								{
+									temp1.shoot(make_pair(i+2, j+2),make_pair(i+5,j+5));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}								
+							}
+							if(access(i-1,j-1)==unoccupied)
+							{
+								if(access(i-2,j-2)==blackSoldier)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-2,j-2));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i-3,j-3)==blackSoldier)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-3,j-3));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}							
+							}
+						}
+						//cout<<"at "<<i<<", "<<j<<"before retreat"<<endl;
+						if(access(i+1, j)==whiteSoldier&&access(i+2, j)==whiteSoldier)
+						{
+							if(access(i+3,j)==unoccupied)
+							{
+								if(access(i+4,j)==blackSoldier)
+								{
+									temp1.shoot(make_pair(i+2, j),make_pair(i+4,j));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i+5,j)==blackSoldier)
+									{
+										temp1.shoot(make_pair(i+2, j),make_pair(i+5,j));
+										possibleBoards.push_back(temp1);
+										temp1=temp2;
+									}								
+							}
+							if(access(i-1,j)==unoccupied)
+							{
+								if(access(i-2,j)==blackSoldier)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-2,j));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i-3,j)==blackSoldier)
+								{
+										temp1.shoot(make_pair(i, j),make_pair(i-3,j));
+										possibleBoards.push_back(temp1);
+										temp1=temp2;
+								}				
+							}
+						}
+						//end cannon moves/shoots
+					}
+				}
+			}
+
+			for(int i=0;i<8;i++){
+				for(int j=0;j<8;++j){
+					if(board[i][j]==whiteSoldier)
+					{
+						if(access(i+1, j)==unoccupied){
+							temp1.move(make_pair(i, j), make_pair(i+1, j));
+							possibleBoards.push_back(temp1);
+							temp1=temp2;
+						}
+						if(access(i+1, j+1)==unoccupied){
+							temp1.move(make_pair(i, j), make_pair(i+1, j+1));
+							possibleBoards.push_back(temp1);
+							temp1=temp2;
+						}
+						if(access(i+1, j-1)==unoccupied){
+							temp1.move(make_pair(i, j), make_pair(i+1, j-1));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
 						}
@@ -231,9 +635,7 @@ class CannonBoard
 							temp1.move(make_pair(i, j), make_pair(i-2, j+2));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
-
-							}
-							
+							}	
 						}
 						//cout<<"at "<<i<<", "<<j<<"before cannons"<<endl;
 						//cannons
@@ -243,47 +645,13 @@ class CannonBoard
 							{
 								temp1.move(make_pair(i, j), make_pair(i, j+3));
 								possibleBoards.push_back(temp1);
-								temp1=temp2;
-								if(access(i,j+4)==blackSoldier||access(i,j+4)==blackTownhall)
-								{
-									temp1.shoot(make_pair(i, j+2),make_pair(i,j+4));
-									possibleBoards.push_back(temp1);
-									temp1=temp2;
-								}
-								if(access(i,j+5)==blackSoldier||access(i,j+5)==blackTownhall)
-									{
-										temp1.shoot(make_pair(i, j+2),make_pair(i,j+5));
-										possibleBoards.push_back(temp1);
-										temp1=temp2;
-									}
-
-								if(access(i,j+4)==unoccupied||access(i,j+5)==unoccupied)
-								{
-									samestate=true;
-																	}								
+								temp1=temp2;							
 							}
 							if(access(i,j-1)==unoccupied)
 							{
 								temp1.move(make_pair(i, j+2), make_pair(i, j-1));
 								possibleBoards.push_back(temp1);
-								temp1=temp2;
-								if(access(i,j-2)==blackSoldier||access(i,j-2)==blackTownhall)
-								{
-									temp1.shoot(make_pair(i, j),make_pair(i,j-2));
-									possibleBoards.push_back(temp1);
-									temp1=temp2;
-								}
-								if(access(i,j-3)==blackSoldier||access(i,j-3)==blackTownhall)
-									{
-										temp1.shoot(make_pair(i, j),make_pair(i,j-3));
-										possibleBoards.push_back(temp1);
-										temp1=temp2;
-									}
-								if(access(i,j-2)==unoccupied||access(i,j+5)==unoccupied)
-								{
-									samestate=true;
-									
-								}								
+								temp1=temp2;							
 							}
 						}
 
@@ -293,14 +661,136 @@ class CannonBoard
 							{
 								temp1.move(make_pair(i, j), make_pair(i+3, j-3));
 								possibleBoards.push_back(temp1);
-								temp1=temp2;
-								if(access(i+4,j-4)==blackSoldier||access(i+4,j-4)==blackTownhall)
+								temp1=temp2;							
+							}
+							if(access(i-1,j+1)==unoccupied)
+							{
+								temp1.move(make_pair(i+2, j-2), make_pair(i-1, j+1));
+								possibleBoards.push_back(temp1);
+								temp1=temp2;							
+							}
+						}
+
+						if(access(i+1, j+1)==whiteSoldier&&access(i+2, j+2)==whiteSoldier)
+						{
+							if(access(i+3,j+3)==unoccupied)
+							{
+								temp1.move(make_pair(i, j), make_pair(i+3, j+3));
+								possibleBoards.push_back(temp1);
+								temp1=temp2;							
+							}
+							if(access(i-1,j-1)==unoccupied)
+							{
+								temp1.move(make_pair(i+2, j+2), make_pair(i-1, j-1));
+								possibleBoards.push_back(temp1);
+								temp1=temp2;							
+							}
+						}
+						//cout<<"at "<<i<<", "<<j<<"before retreat"<<endl;
+						if(access(i+1, j)==whiteSoldier&&access(i+2, j)==whiteSoldier)
+						{
+							if(access(i+3,j)==unoccupied)
+							{
+								temp1.move(make_pair(i, j), make_pair(i+3, j));
+								possibleBoards.push_back(temp1);
+								temp1=temp2;							
+							}
+							if(access(i-1,j)==unoccupied)
+							{
+								temp1.move(make_pair(i+2, j), make_pair(i-1, j));
+								possibleBoards.push_back(temp1);
+								temp1=temp2;							
+							}
+						}
+						//end cannon moves/shoots
+					}
+				}
+			}
+		}
+		else{
+			for(int i=0;i<8;i++){
+				for(int j=0;j<8;++j){
+					if(board[i][j]==blackSoldier)
+					{
+						if(access(i-1, j)==whiteTownhall){
+							temp1.move(make_pair(i, j), make_pair(i-1, j));
+							possibleBoards.push_back(temp1);
+							temp1=temp2;
+						}
+						if(access(i-1, j+1)==whiteTownhall){
+							temp1.move(make_pair(i, j), make_pair(i-1, j+1));
+							possibleBoards.push_back(temp1);
+							temp1=temp2;
+						}
+						if(access(i-1, j-1)==whiteTownhall){
+							temp1.move(make_pair(i, j), make_pair(i-1, j-1));
+							possibleBoards.push_back(temp1);
+							temp1=temp2;
+						}
+						if(access(i, j+1)==whiteTownhall){
+							temp1.move(make_pair(i, j), make_pair(i, j+1));
+							possibleBoards.push_back(temp1);
+							temp1=temp2;
+						}
+						if(access(i, j-1)==whiteTownhall){
+							temp1.move(make_pair(i, j), make_pair(i, j-1));
+							possibleBoards.push_back(temp1);
+							temp1=temp2;
+						}
+						//cannon
+						if(access(i, j+1)==blackSoldier&&access(i, j+2)==blackSoldier)
+						{
+							if(access(i,j+3)==unoccupied)
+							{
+								if(access(i,j+4)==whiteTownhall)
+								{
+									temp1.shoot(make_pair(i, j+2),make_pair(i,j+4));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i,j+5)==whiteTownhall)
+									{
+										temp1.shoot(make_pair(i, j+2),make_pair(i,j+5));
+										possibleBoards.push_back(temp1);
+										temp1=temp2;
+									}
+								if(access(i,j+4)==unoccupied||access(i,j+5)==unoccupied)
+								{
+									samestate=true;
+								}								
+							}
+							if(access(i,j-1)==unoccupied)
+							{
+								if(access(i,j-2)==whiteTownhall)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i,j-2));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i,j-3)==whiteTownhall)
+									{
+										temp1.shoot(make_pair(i, j),make_pair(i,j-3));
+										possibleBoards.push_back(temp1);
+										temp1=temp2;
+									}
+								if(access(i,j-2)==unoccupied||access(i,j-3)==unoccupied)
+								{
+									samestate=true;						
+								}								
+							}
+						}
+
+						if(access(i+1, j-1)==blackSoldier&&access(i+2, j-2)==blackSoldier)
+						{
+							if(access(i+3,j-3)==unoccupied)
+							{
+								if(access(i+4,j-4)==whiteTownhall)
 								{
 									temp1.shoot(make_pair(i+2, j-2),make_pair(i+4,j-4));
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								if(access(i+5,j-5)==blackSoldier||access(i+5,j-5)==blackTownhall)
+								if(access(i+5,j-5)==whiteTownhall)
 									{
 										temp1.shoot(make_pair(i+2, j-2),make_pair(i+5,j-5));
 										possibleBoards.push_back(temp1);
@@ -314,16 +804,13 @@ class CannonBoard
 							}
 							if(access(i-1,j+1)==unoccupied)
 							{
-								temp1.move(make_pair(i+2, j-2), make_pair(i-1, j+1));
-								possibleBoards.push_back(temp1);
-								temp1=temp2;
-								if(access(i-2,j+2)==blackSoldier||access(i-2,j+2)==blackTownhall)
+								if(access(i-2,j+2)==whiteTownhall)
 								{
 									temp1.shoot(make_pair(i, j),make_pair(i-2,j+2));
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								if(access(i-3,j+3)==blackSoldier||access(i-3,j+3)==blackTownhall)
+								if(access(i-3,j+3)==whiteTownhall)
 									{
 										temp1.shoot(make_pair(i, j),make_pair(i-3,j+3));
 										possibleBoards.push_back(temp1);
@@ -337,20 +824,17 @@ class CannonBoard
 							}
 						}
 
-						if(access(i+1, j+1)==whiteSoldier&&access(i+2, j+2)==whiteSoldier)
+						if(access(i+1, j+1)==blackSoldier&&access(i+2, j+2)==blackSoldier)
 						{
 							if(access(i+3,j+3)==unoccupied)
 							{
-								temp1.move(make_pair(i, j), make_pair(i+3, j+3));
-								possibleBoards.push_back(temp1);
-								temp1=temp2;
-								if(access(i+4,j+4)==blackSoldier||access(i+4,j+4)==blackTownhall)
+								if(access(i+4,j+4)==whiteTownhall)
 								{
 									temp1.shoot(make_pair(i+2, j+2),make_pair(i+2,j+4));
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								if(access(i+5,j+5)==blackSoldier||access(i+5,j+5)==blackTownhall)
+								if(access(i+5,j+5)==whiteTownhall)
 									{
 										temp1.shoot(make_pair(i+2, j+2),make_pair(i+5,j+5));
 										possibleBoards.push_back(temp1);
@@ -364,16 +848,13 @@ class CannonBoard
 							}
 							if(access(i-1,j-1)==unoccupied)
 							{
-								temp1.move(make_pair(i+2, j+2), make_pair(i-1, j-1));
-								possibleBoards.push_back(temp1);
-								temp1=temp2;
-								if(access(i-2,j-2)==blackSoldier||access(i-2,j-2)==blackTownhall)
+								if(access(i-2,j-2)==whiteTownhall)
 								{
 									temp1.shoot(make_pair(i, j),make_pair(i-2,j-2));
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								if(access(i-3,j-3)==blackSoldier||access(i-3,j-3)==blackTownhall)
+								if(access(i-3,j-3)==whiteTownhall)
 									{
 										temp1.shoot(make_pair(i, j),make_pair(i-3,j-3));
 										possibleBoards.push_back(temp1);
@@ -381,26 +862,22 @@ class CannonBoard
 									}
 								if(access(i-2,j-2)==unoccupied||access(i-3,j-3)==unoccupied)
 								{
-									samestate=true;
-									
+									samestate=true;									
 								}								
 							}
 						}
-						//cout<<"at "<<i<<", "<<j<<"before retreat"<<endl;
-						if(access(i+1, j)==whiteSoldier&&access(i+2, j)==whiteSoldier)
+
+						if(access(i+1, j)==blackSoldier&&access(i+2, j)==blackSoldier)
 						{
 							if(access(i+3,j)==unoccupied)
 							{
-								temp1.move(make_pair(i, j), make_pair(i+3, j));
-								possibleBoards.push_back(temp1);
-								temp1=temp2;
-								if(access(i+4,j)==blackSoldier||access(i+4,j)==blackTownhall)
+								if(access(i+4,j)==whiteTownhall)
 								{
 									temp1.shoot(make_pair(i+2, j),make_pair(i+4,j));
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								if(access(i+5,j)==blackSoldier||access(i+5,j)==blackTownhall)
+								if(access(i+5,j)==whiteTownhall)
 									{
 										temp1.shoot(make_pair(i+2, j),make_pair(i+5,j));
 										possibleBoards.push_back(temp1);
@@ -414,22 +891,19 @@ class CannonBoard
 							}
 							if(access(i-1,j)==unoccupied)
 							{
-								temp1.move(make_pair(i+2, j), make_pair(i-1, j));
-								possibleBoards.push_back(temp1);
-								temp1=temp2;
-								if(access(i-2,j)==blackSoldier||access(i-2,j)==blackTownhall)
+								if(access(i-2,j)==whiteTownhall)
 								{
 									temp1.shoot(make_pair(i, j),make_pair(i-2,j));
 									possibleBoards.push_back(temp1);
 									temp1=temp2;
 								}
-								if(access(i-3,j)==blackSoldier||access(i-3,j)==blackTownhall)
+								if(access(i-3,j)==whiteTownhall)
 									{
 										temp1.shoot(make_pair(i, j),make_pair(i-3,j));
 										possibleBoards.push_back(temp1);
 										temp1=temp2;
 									}
-								else if(access(i-2,j)==unoccupied||access(i-3,j)==unoccupied)
+								if(access(i-2,j)==unoccupied||access(i-3,j)==unoccupied)
 								{
 									samestate=true;
 									
@@ -441,34 +915,201 @@ class CannonBoard
 				}
 			}
 
-		}
-		else{
 			for(int i=0;i<8;i++){
 				for(int j=0;j<8;++j){
 					if(board[i][j]==blackSoldier)
 					{
-						if(access(i-1, j)==unoccupied||access(i-1, j)==whiteSoldier||access(i-1, j)==whiteTownhall){
+						if(access(i-1, j)==whiteSoldier){
 							temp1.move(make_pair(i, j), make_pair(i-1, j));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
 						}
-						if(access(i-1, j+1)==unoccupied||access(i-1, j+1)==whiteSoldier||access(i-1, j+1)==whiteTownhall){
+						if(access(i-1, j+1)==whiteSoldier){
 							temp1.move(make_pair(i, j), make_pair(i-1, j+1));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
 						}
-						if(access(i-1, j-1)==unoccupied||access(i-1, j-1)==whiteSoldier||access(i-1, j-1)==whiteTownhall){
+						if(access(i-1, j-1)==whiteSoldier){
 							temp1.move(make_pair(i, j), make_pair(i-1, j-1));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
 						}
-						if(access(i, j+1)==whiteTownhall||access(i, j+1)==whiteSoldier){
+						if(access(i, j+1)==whiteSoldier){
 							temp1.move(make_pair(i, j), make_pair(i, j+1));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
 						}
-						if(access(i, j-1)==whiteTownhall||access(i, j-1)==whiteSoldier){
+						if(access(i, j-1)==whiteSoldier){
 							temp1.move(make_pair(i, j), make_pair(i, j-1));
+							possibleBoards.push_back(temp1);
+							temp1=temp2;
+						}
+						//cannon
+						if(access(i, j+1)==blackSoldier&&access(i, j+2)==blackSoldier)
+						{
+							if(access(i,j+3)==unoccupied)
+							{
+								if(access(i,j+4)==whiteSoldier)
+								{
+									temp1.shoot(make_pair(i, j+2),make_pair(i,j+4));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i,j+5)==whiteSoldier)
+									{
+										temp1.shoot(make_pair(i, j+2),make_pair(i,j+5));
+										possibleBoards.push_back(temp1);
+										temp1=temp2;
+									}								
+							}
+							if(access(i,j-1)==unoccupied)
+							{
+								if(access(i,j-2)==whiteSoldier)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i,j-2));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i,j-3)==whiteSoldier)
+									{
+										temp1.shoot(make_pair(i, j),make_pair(i,j-3));
+										possibleBoards.push_back(temp1);
+										temp1=temp2;
+									}							
+							}
+						}
+
+						if(access(i+1, j-1)==blackSoldier&&access(i+2, j-2)==blackSoldier)
+						{
+							if(access(i+3,j-3)==unoccupied)
+							{
+								if(access(i+4,j-4)==whiteSoldier)
+								{
+									temp1.shoot(make_pair(i+2, j-2),make_pair(i+4,j-4));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i+5,j-5)==whiteSoldier)
+									{
+										temp1.shoot(make_pair(i+2, j-2),make_pair(i+5,j-5));
+										possibleBoards.push_back(temp1);
+										temp1=temp2;
+									}							
+							}
+							if(access(i-1,j+1)==unoccupied)
+							{
+								if(access(i-2,j+2)==whiteSoldier)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-2,j+2));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i-3,j+3)==whiteSoldier)
+									{
+										temp1.shoot(make_pair(i, j),make_pair(i-3,j+3));
+										possibleBoards.push_back(temp1);
+										temp1=temp2;
+									}							
+							}
+						}
+
+						if(access(i+1, j+1)==blackSoldier&&access(i+2, j+2)==blackSoldier)
+						{
+							if(access(i+3,j+3)==unoccupied)
+							{
+								if(access(i+4,j+4)==whiteSoldier)
+								{
+									temp1.shoot(make_pair(i+2, j+2),make_pair(i+2,j+4));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i+5,j+5)==whiteSoldier)
+									{
+										temp1.shoot(make_pair(i+2, j+2),make_pair(i+5,j+5));
+										possibleBoards.push_back(temp1);
+										temp1=temp2;
+									}								
+							}
+							if(access(i-1,j-1)==unoccupied)
+							{
+								temp1.move(make_pair(i+2, j+2), make_pair(i-1, j-1));
+								possibleBoards.push_back(temp1);
+								temp1=temp2;
+								if(access(i-2,j-2)==whiteSoldier)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-2,j-2));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i-3,j-3)==whiteSoldier)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-3,j-3));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}							
+							}
+						}
+
+						if(access(i+1, j)==blackSoldier&&access(i+2, j)==blackSoldier)
+						{
+							if(access(i+3,j)==unoccupied)
+							{
+								temp1.move(make_pair(i, j), make_pair(i+3, j));
+								possibleBoards.push_back(temp1);
+								temp1=temp2;
+								if(access(i+4,j)==whiteSoldier)
+								{
+									temp1.shoot(make_pair(i+2, j),make_pair(i+4,j));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i+5,j)==whiteSoldier)
+									{
+										temp1.shoot(make_pair(i+2, j),make_pair(i+5,j));
+										possibleBoards.push_back(temp1);
+										temp1=temp2;
+									}								
+							}
+							if(access(i-1,j)==unoccupied)
+							{
+								temp1.move(make_pair(i+2, j), make_pair(i-1, j));
+								possibleBoards.push_back(temp1);
+								temp1=temp2;
+								if(access(i-2,j)==whiteSoldier)
+								{
+									temp1.shoot(make_pair(i, j),make_pair(i-2,j));
+									possibleBoards.push_back(temp1);
+									temp1=temp2;
+								}
+								if(access(i-3,j)==whiteSoldier)
+									{
+										temp1.shoot(make_pair(i, j),make_pair(i-3,j));
+										possibleBoards.push_back(temp1);
+										temp1=temp2;
+									}								
+							}
+						}
+						//end cannon moves/shoots
+					}
+				}
+			}
+
+			for(int i=0;i<8;i++){
+				for(int j=0;j<8;++j){
+					if(board[i][j]==blackSoldier)
+					{
+						if(access(i-1, j)==unoccupied){
+							temp1.move(make_pair(i, j), make_pair(i-1, j));
+							possibleBoards.push_back(temp1);
+							temp1=temp2;
+						}
+						if(access(i-1, j+1)==unoccupied){
+							temp1.move(make_pair(i, j), make_pair(i-1, j+1));
+							possibleBoards.push_back(temp1);
+							temp1=temp2;
+						}
+						if(access(i-1, j-1)==unoccupied){
+							temp1.move(make_pair(i, j), make_pair(i-1, j-1));
 							possibleBoards.push_back(temp1);
 							temp1=temp2;
 						}
@@ -496,46 +1137,13 @@ class CannonBoard
 							{
 								temp1.move(make_pair(i, j), make_pair(i, j+3));
 								possibleBoards.push_back(temp1);
-								temp1=temp2;
-								if(access(i,j+4)==whiteSoldier||access(i,j+4)==whiteTownhall)
-								{
-									temp1.shoot(make_pair(i, j+2),make_pair(i,j+4));
-									possibleBoards.push_back(temp1);
-									temp1=temp2;
-								}
-								if(access(i,j+5)==whiteSoldier||access(i,j+5)==whiteTownhall)
-									{
-										temp1.shoot(make_pair(i, j+2),make_pair(i,j+5));
-										possibleBoards.push_back(temp1);
-										temp1=temp2;
-									}
-								if(access(i,j+4)==unoccupied||access(i,j+5)==unoccupied)
-								{
-									samestate=true;
-								}								
+								temp1=temp2;							
 							}
 							if(access(i,j-1)==unoccupied)
 							{
 								temp1.move(make_pair(i, j+2), make_pair(i, j-1));
 								possibleBoards.push_back(temp1);
-								temp1=temp2;
-								if(access(i,j-2)==whiteSoldier||access(i,j-2)==whiteTownhall)
-								{
-									temp1.shoot(make_pair(i, j),make_pair(i,j-2));
-									possibleBoards.push_back(temp1);
-									temp1=temp2;
-								}
-								if(access(i,j-3)==whiteSoldier||access(i,j-3)==whiteTownhall)
-									{
-										temp1.shoot(make_pair(i, j),make_pair(i,j-3));
-										possibleBoards.push_back(temp1);
-										temp1=temp2;
-									}
-								if(access(i,j-2)==unoccupied||access(i,j-3)==unoccupied)
-								{
-									samestate=true;
-									
-								}								
+								temp1=temp2;								
 							}
 						}
 
@@ -545,47 +1153,13 @@ class CannonBoard
 							{
 								temp1.move(make_pair(i, j), make_pair(i+3, j-3));
 								possibleBoards.push_back(temp1);
-								temp1=temp2;
-								if(access(i+4,j-4)==whiteSoldier||access(i+4,j-4)==whiteTownhall)
-								{
-									temp1.shoot(make_pair(i+2, j-2),make_pair(i+4,j-4));
-									possibleBoards.push_back(temp1);
-									temp1=temp2;
-								}
-								if(access(i+5,j-5)==whiteSoldier||access(i+5,j-5)==whiteTownhall)
-									{
-										temp1.shoot(make_pair(i+2, j-2),make_pair(i+5,j-5));
-										possibleBoards.push_back(temp1);
-										temp1=temp2;
-									}
-								if(access(i+4,j-4)==unoccupied||access(i+5,j-5)==unoccupied)
-								{
-									samestate=true;
-									
-								}								
+								temp1=temp2;								
 							}
 							if(access(i-1,j+1)==unoccupied)
 							{
 								temp1.move(make_pair(i+2, j-2), make_pair(i-1, j+1));
 								possibleBoards.push_back(temp1);
-								temp1=temp2;
-								if(access(i-2,j+2)==whiteSoldier||access(i-2,j+2)==whiteTownhall)
-								{
-									temp1.shoot(make_pair(i, j),make_pair(i-2,j+2));
-									possibleBoards.push_back(temp1);
-									temp1=temp2;
-								}
-								if(access(i-3,j+3)==whiteSoldier||access(i-3,j+3)==whiteTownhall)
-									{
-										temp1.shoot(make_pair(i, j),make_pair(i-3,j+3));
-										possibleBoards.push_back(temp1);
-										temp1=temp2;
-									}
-								if(access(i-2,j+2)==unoccupied||access(i-3,j+3)==unoccupied)
-								{
-									samestate=true;
-									
-								}								
+								temp1=temp2;								
 							}
 						}
 
@@ -595,46 +1169,13 @@ class CannonBoard
 							{
 								temp1.move(make_pair(i, j), make_pair(i+3, j+3));
 								possibleBoards.push_back(temp1);
-								temp1=temp2;
-								if(access(i+4,j+4)==whiteSoldier||access(i+4,j+4)==whiteTownhall)
-								{
-									temp1.shoot(make_pair(i+2, j+2),make_pair(i+2,j+4));
-									possibleBoards.push_back(temp1);
-									temp1=temp2;
-								}
-								if(access(i+5,j+5)==whiteSoldier||access(i+5,j+5)==whiteTownhall)
-									{
-										temp1.shoot(make_pair(i+2, j+2),make_pair(i+5,j+5));
-										possibleBoards.push_back(temp1);
-										temp1=temp2;
-									}
-								if(access(i+4,j+4)==unoccupied||access(i+5,j+5)==unoccupied)
-								{
-									samestate=true;
-									
-								}								
+								temp1=temp2;								
 							}
 							if(access(i-1,j-1)==unoccupied)
 							{
 								temp1.move(make_pair(i+2, j+2), make_pair(i-1, j-1));
 								possibleBoards.push_back(temp1);
-								temp1=temp2;
-								if(access(i-2,j-2)==whiteSoldier||access(i-2,j-2)==whiteTownhall)
-								{
-									temp1.shoot(make_pair(i, j),make_pair(i-2,j-2));
-									possibleBoards.push_back(temp1);
-									temp1=temp2;
-								}
-								if(access(i-3,j-3)==whiteSoldier||access(i-3,j-3)==whiteTownhall)
-									{
-										temp1.shoot(make_pair(i, j),make_pair(i-3,j-3));
-										possibleBoards.push_back(temp1);
-										temp1=temp2;
-									}
-								if(access(i-2,j-2)==unoccupied||access(i-3,j-3)==unoccupied)
-								{
-									samestate=true;									
-								}								
+								temp1=temp2;								
 							}
 						}
 
@@ -644,47 +1185,13 @@ class CannonBoard
 							{
 								temp1.move(make_pair(i, j), make_pair(i+3, j));
 								possibleBoards.push_back(temp1);
-								temp1=temp2;
-								if(access(i+4,j)==whiteSoldier||access(i+4,j)==whiteTownhall)
-								{
-									temp1.shoot(make_pair(i+2, j),make_pair(i+4,j));
-									possibleBoards.push_back(temp1);
-									temp1=temp2;
-								}
-								if(access(i+5,j)==whiteSoldier||access(i+5,j)==whiteTownhall)
-									{
-										temp1.shoot(make_pair(i+2, j),make_pair(i+5,j));
-										possibleBoards.push_back(temp1);
-										temp1=temp2;
-									}
-								if(access(i+4,j)==unoccupied||access(i+5,j)==unoccupied)
-								{
-									samestate=true;
-									
-								}								
+								temp1=temp2;								
 							}
 							if(access(i-1,j)==unoccupied)
 							{
 								temp1.move(make_pair(i+2, j), make_pair(i-1, j));
 								possibleBoards.push_back(temp1);
-								temp1=temp2;
-								if(access(i-2,j)==whiteSoldier||access(i-2,j)==whiteTownhall)
-								{
-									temp1.shoot(make_pair(i, j),make_pair(i-2,j));
-									possibleBoards.push_back(temp1);
-									temp1=temp2;
-								}
-								if(access(i-3,j)==whiteSoldier||access(i-3,j)==whiteTownhall)
-									{
-										temp1.shoot(make_pair(i, j),make_pair(i-3,j));
-										possibleBoards.push_back(temp1);
-										temp1=temp2;
-									}
-								if(access(i-2,j)==unoccupied||access(i-3,j)==unoccupied)
-								{
-									samestate=true;
-									
-								}								
+								temp1=temp2;								
 							}
 						}
 						//end cannon moves/shoots
@@ -700,9 +1207,9 @@ class CannonBoard
 		// {
 		// 	for(int i=0;i<8;i++){
 		// 	for(int j=0;j<8;++j){
-		// 		fout<<board[i][j]<<"\t";
+		// 		//fout<<board[i][j]<<"\t";
 		// 	}
-		// 	fout<<endl;
+		// 	//fout<<endl;
 		
 		// }
 		possibleBoards.clear();	
@@ -757,7 +1264,47 @@ class CannonBoard
 	{
 		return access(x.first, x.second);
 	}
-	int evaluate_white()
+	int evaluate_white();
+	int evaluate_black();
+	int evaluate(bool white);
+	
+
+	void print()
+	{
+		for(int i=0;i<8;i++){
+			for(int j=0;j<8;++j){
+				cout<<board[i][j]<<"\t";
+			}
+			cout<<endl;
+		}   
+	}
+
+};
+namespace std {
+
+  template <>
+  struct hash<CannonBoard >
+  {
+    std::size_t operator()(const CannonBoard& k) const
+    {
+      using std::size_t;
+      using std::hash;
+      using std::string;
+      std::hash<string> str_hash;
+
+      // Compute individual hash values for first,
+      // second and third and combine them using XOR
+      // and bit shifting:
+
+      return str_hash(k.sig);
+    }
+  };
+
+}
+unordered_map<string, long> ohoho;
+unordered_map<CannonBoard, long> map_state_white;
+unordered_map<CannonBoard, long> map_state_black;	
+int CannonBoard::evaluate_white()
 	{
 		int soldiers=0, townhalls=0, cannons=0;
 		for(int i=0;i<8;i++){
@@ -839,7 +1386,7 @@ class CannonBoard
 			return (soldiers*parameters[0])-((2-townhalls)*parameters[5])+(cannons*parameters[1])+(hits_unoccupied*parameters[2])+(hits_black*parameters[3])+(hits_townhall*parameters[4]);
 
 	}
-	int evaluate_black()
+int CannonBoard::evaluate_black()
 	{
 		int soldiers=0, townhalls=0, cannons=0;
 		for(int i=0;i<8;i++){
@@ -924,88 +1471,46 @@ class CannonBoard
 		
 
 	}
-	int evaluate(bool white)
+	/*int CannonBoard::evaluate(bool white)
+	{
+		int eval_white=0, eval_black=0;
+		long time_spent=0.0;
+		time_spent += (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - begintt)).count();
+		if(true){
+			if(map_state_white.find(*this)==map_state_white.end()){
+				eval_white=evaluate_white();
+				map_state_white[*this]=eval_white;
+			}
+			else{
+				////fout<<"!"<<endl;
+				eval_white=map_state_white[*this];
+			}
+			if(map_state_black.find(*this)==map_state_black.end()){
+				eval_black=evaluate_black();
+				map_state_black[*this]=eval_black;
+			}
+			else{
+				////fout<<"!"<<endl;
+				eval_black=map_state_black[*this];
+			}
+			if(white){
+				return eval_white-eval_black;
+			}
+			else{
+				return eval_black-eval_white;
+			}
+		}
+		
+
+		
+	}*/
+	int CannonBoard::evaluate(bool white)
 	{
 		if(white)
 			return evaluate_white()-evaluate_black();
 		else
 			return evaluate_black()-evaluate_white();
 	}
-
-	void print()
-	{
-		for(int i=0;i<8;i++){
-			for(int j=0;j<8;++j){
-				cout<<board[i][j]<<"\t";
-			}
-			cout<<endl;
-		}   
-	}
-
-};
-namespace std {
-
-  template <>
-  struct hash<pair<CannonBoard, bool> >
-  {
-    std::size_t operator()(const pair<CannonBoard, bool>& k) const
-    {
-      using std::size_t;
-      using std::hash;
-      using std::string;
-      std::hash<int> str_hash;
-
-      // Compute individual hash values for first,
-      // second and third and combine them using XOR
-      // and bit shifting:
-
-      return str_hash(k.first.sum()+k.second);
-    }
-  };
-
-}
-class hashmaps{
-	map<pair<CannonBoard, bool>, long> mainMap;
-	vector< pair<CannonBoard, bool> > lastUsed;
-	public:
-	void Add(CannonBoard &element, bool b, long eval);
-	long findeval(pair<CannonBoard , bool > p);
-	bool find(pair<CannonBoard , bool > p);
-	
-};
-void hashmaps::Add(CannonBoard &element, bool b, long eval)
-	{
-		if(mainMap.size()>=bottleneck_size){
-			mainMap.erase(lastUsed[0]);
-			lastUsed.erase(lastUsed.begin());
-			mainMap[(make_pair(element, b))]= eval;
-			lastUsed.push_back(make_pair(element, b));
-		}
-		else{
-			//mainMap.insert(make_pair(make_pair(element, b), eval));
-			mainMap[make_pair(element, b)]=eval;
-			lastUsed.push_back(make_pair(element, b));
-			fout<<eval<<" inserted"<<endl;
-			CannonBoard tempp=element;
-			long temp=mainMap[make_pair(tempp, b)];
-			fout<<temp<<"fffffff"<<endl;
-			fout<<findeval(make_pair(tempp, b))<<"fffffff"<<endl;
-		}
-	}
-long hashmaps::findeval(pair<CannonBoard , bool > p)
-	{
-				mainMap[p];
-	}
-bool hashmaps::find(pair<CannonBoard , bool > p)
-	{
-			if(mainMap.find(p)==mainMap.end())
-				return false;
-			else
-				return true;
-	}
-hashmaps boardMap;
-
-
 
 string transform_move(CannonBoard initial, CannonBoard final, bool white)
 {
@@ -1021,8 +1526,8 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 					continue;
 				if(initial.getBoard()[i][j]==whiteSoldier)
 				{
-					//fout<<"printed at "<<i<<", "<<j<<endl;
-					//fout<<initial.prints()<<" ";
+					////fout<<"printed at "<<i<<", "<<j<<endl;
+					////fout<<initial.prints()<<" ";
 					if(initial.access(i+1, j)==unoccupied||initial.access(i+1, j)==blackSoldier||initial.access(i+1, j)==blackTownhall){
 						temp1.move(make_pair(i, j), make_pair(i+1, j));
 						if(temp1==final)
@@ -1609,10 +2114,15 @@ string transform_move(CannonBoard initial, CannonBoard final, bool white)
 
 	}
 	return move;
-}		
+}	
+
 int max_value_action(CannonBoard present, int depth, bool white, int alpha, int beta, bool who);
 int min_value_action(CannonBoard present, int depth, bool white,  int alpha, int beta, bool who);
-
+bool flagcomp=false;
+bool compareState(pair<CannonBoard, move_type> p1, pair<CannonBoard, move_type> p2)
+{
+	return p1.first.evaluate(flagcomp)>p2.first.evaluate(flagcomp);
+}
 
 string select_move(CannonBoard present,  int depth, bool white, bool who)
 {
@@ -1633,6 +2143,7 @@ string select_move(CannonBoard present,  int depth, bool white, bool who)
 			max=minVal;
 			best_child=*it;
 		}
+		alpha=max>alpha?max:alpha;
 	}
 	//cout<<"initial board is"<<endl;
 	//present.print();
@@ -1654,53 +2165,33 @@ int max_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 	//cout<<"min value action after possibleStates with depth "<<depth<<endl;
 	int max=INT_MIN;
 	CannonBoard best_child;
-	if(depth==0){
-		
-		/*if(boardMap.find(make_pair(present, white))){
-			//fout<<boardMap.findeval(present, white)<<"ooo"<<present.evaluate(white)<<endl;
-			return boardMap.findeval(make_pair(present, white));
-		}
-		else{
-			long temp=present.evaluate(white);
-			boardMap.Add(present, white, temp);
-			fout<<boardMap.findeval(make_pair(present, white))<<"ooo"<<present.evaluate(white)<<endl;
-			return temp;
-		}*/
+	if(depth==0)
 		return present.evaluate(white);
-	}
 	if(successors.size()==0)
-		return 0;
+		return present.evaluate(white);
 	for(auto it=successors.begin();it!=successors.end();it++){
 		int minVal;
 		if(depth==1){
-			
 			//cout<<"went all the way max, value given is"<<it->evaluate(white)<<endl;
-			/*if(boardMap.find(make_pair(*it, white))){
-				//fout<<boardMap.findeval(present, white)<<"ooo"<<it->evaluate(white)<<endl;
-				minVal=boardMap.findeval(make_pair(*it, white));//changed
-			}
-			else{
-				long temp=it->evaluate(white);
-				boardMap.Add(*it, white, temp);
-				fout<<boardMap.findeval(make_pair(*it, white))<<"ooo"<<it->evaluate(white)<<endl;
-				minVal= temp;
-			}*/
-			minVal= it->evaluate(white);
+			minVal=it->evaluate(white);//changed
 		}
 		else{
 			minVal=min_value_action(*it, depth-1, white, alpha, beta, !who);
 		}
 		//cout<<"minval we got in maximiser at depth "<<4-depth<<" was "<<minVal<<endl;
-		alpha=minVal>alpha?minVal:alpha;
-		if (alpha>=beta){
-			//cout<<"pruned max at depth "<<depth<<"with value "<<alpha<<" and "<<beta<<endl;
-			return minVal;
-
-		} 
+		
 		if(minVal>max){
 			max=minVal;
-			best_child=*it;
+			//best_child=*it;
 		}
+		
+		alpha=max>alpha?max:alpha;
+		if (alpha>=beta){
+			fout<<"pruned max at depth "<<depth<<"with value "<<alpha<<" and "<<beta<<endl;
+			break;
+
+		} 
+		
 
 
 	}
@@ -1718,21 +2209,9 @@ int min_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 	int min=INT_MAX;
 	CannonBoard best_child;
 	if(depth==0)
-		{
-		/*if(boardMap.find(make_pair(present, white))){
-			//fout<<boardMap.findeval(present, white)<<"iii"<<present.evaluate(white)<<endl;
-			return boardMap.findeval(make_pair(present, white));
-		}
-		else{
-			long temp=present.evaluate(white);
-			boardMap.Add(present, white, temp);
-			fout<<boardMap.findeval(make_pair(present, white))<<"iii"<<present.evaluate(white)<<endl;
-			return temp;
-		}*/
 		return present.evaluate(white);
-	}
 	if(successors.size()==0)
-		return 0;
+		return present.evaluate(white);
 	for(auto it=successors.begin();it!=successors.end();it++){
 
 		int maxVal;
@@ -1740,35 +2219,26 @@ int min_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 		if(depth==1){
 			//cout<<"went all the way min, value given is"<<it->evaluate(white)<<endl;
 			//it->print();
-			/*if(boardMap.find(make_pair(*it, white))){
-				//fout<<boardMap.findeval(present, white)<<"iii"<<it->evaluate(white)<<endl;
-				maxVal=boardMap.findeval(make_pair(*it, white));//changed
-			}
-			else{
-				long temp=it->evaluate(white);
-				CannonBoard t=*it;
-				boardMap.Add(t, white, temp);
-				fout<<boardMap.findeval(make_pair(t, white))<<"iii"<<t.evaluate(white)<<endl;
-				maxVal= temp;
-			}*/
-			maxVal=it->evaluate(white);
+			maxVal=it->evaluate(white);//changed
 
 		}
 		else{
 			temp=max_value_action(*it, depth-1, white, alpha, beta, !who);
 			maxVal=temp;
 		}
-		//cout<<"~~~~~~~~maxval we got in minimiser at depth "<<4-depth<<" was "<<maxVal<<endl;
-		beta=maxVal<beta?maxVal:beta;
-		if (alpha>=beta){
-			//cout<<"pruned min at depth "<<depth<<"with value "<<alpha<<" and "<<beta<<endl;
-			return maxVal;
-
-		} 
 		if(maxVal<min){
 			min=maxVal;
-			best_child=*it;
+			//best_child=*it;
 		}
+		//cout<<"~~~~~~~~maxval we got in minimiser at depth "<<4-depth<<" was "<<maxVal<<endl;
+		beta=min<beta?min:beta;
+		
+		if (alpha>=beta){
+			fout<<"pruned min at depth "<<depth<<"with value "<<alpha<<" and "<<beta<<endl;
+			break;
+
+		} 
+		
 
 
 	}
@@ -1823,6 +2293,7 @@ int main()
 		white=true;
 	int num_moves=0;
 	long time_spent =0.0;
+	
 	if(white){
 		while(true){
 			
@@ -1831,7 +2302,7 @@ int main()
 			vector<string> S1=split(command1," ");
 			command=S1[0]+(string)" "+S1[2]+(string)" "+S1[1]+(string)" "+S1[3]+(string)" "+S1[5]+(string)" "+S1[4];
 			oneMove(command, ourBoard);
-			std::chrono::time_point<std::chrono::system_clock> begin = std::chrono::system_clock::now();
+			begint = std::chrono::system_clock::now();
 			// int soldiers=0;
 			// for(int i=0;i<8;i++){
 			// 	for(int j=0;j<8;++j){
@@ -1845,31 +2316,35 @@ int main()
 			// else if(num_moves<2)
 			//  	AImove=select_move(ourBoard, 3, true, true);
 			// else 
-			if(time_spent>=85000)
-			 	AImove=select_move(ourBoard, 1, true, true);
+			if(num_moves<=4)
+				AImove=select_move(ourBoard, 5, true, true);
+			if(time_spent>=105000)
+			 	AImove=select_move(ourBoard, 4, true, true);
 			else if(time_spent>=75000){
-				AImove=select_move(ourBoard, 3, true, true);
-				//fout<<time_spent<<" 1"<<endl;
+				AImove=select_move(ourBoard, 5, true, true);
+				////fout<<time_spent<<" 1"<<endl;
 			}
 			// else if (soldiers<3){
 			// 	AImove=select_move(ourBoard, 5, true, true);
 			// }
 			else {
-			 	AImove=select_move(ourBoard, 4, true, true);
-			 	//fout<<time_spent<<" 2"<<endl;
+			 	AImove=select_move(ourBoard, 5, true, true);
+			 	////fout<<time_spent<<" 2"<<endl;
 			 }
 			 vector<string> S=split(AImove," ");
 			 cout<<S[0]<<" "<<S[2]<<" "<<S[1]<<" "<<S[3]<<" "<<S[5]<<" "<<S[4]<<endl;
 			 oneMove(AImove, ourBoard);
 			 num_moves++;
-			 time_spent += (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - begin)).count();
+			 time_spent += (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - begint)).count();
 		}
 	}	
 	else
+
 	{
 		while(true){
-			std::chrono::time_point<std::chrono::system_clock> begin = std::chrono::system_clock::now();
+			
 			int soldiers=0;
+			begint = std::chrono::system_clock::now();
 			// for(int i=0;i<8;i++){
 			// 	for(int j=0;j<8;++j){
 			// 		if(ourBoard.getBoard()[i][j]==blackSoldier)
@@ -1879,20 +2354,20 @@ int main()
 			string AImove;
 			if(num_moves==0)
 				AImove="S 7 4 M 6 3";
-			else if(num_moves<3)
-			 	AImove=select_move(ourBoard, 3, false, false);
-			else if(time_spent>=85000)
-			 	AImove=select_move(ourBoard, 1, false, false);
+			else if(num_moves<=4)
+			 	AImove=select_move(ourBoard, 5, false, false);
+			else if(time_spent>=105000)
+			 	AImove=select_move(ourBoard, 4, false, false);
 			else if(time_spent>=75000){
-				AImove=select_move(ourBoard, 3, false, false);
-				//fout<<time_spent<<" 1"<<endl;
+				AImove=select_move(ourBoard, 5, false, false);
+				////fout<<time_spent<<" 1"<<endl;
 			}
 			// else if (soldiers<3){
 			// 	AImove=select_move(ourBoard, 5, true, true);
 			// }
 			else{
-			 	AImove=select_move(ourBoard, 4, false, false);
-			 	//fout<<time_spent<<" 2"<<endl;
+			 	AImove=select_move(ourBoard, 5, false, false);
+			 	////fout<<time_spent<<" 2"<<endl;
 			}
 
 			vector<string> S=split(AImove," ");
@@ -1900,10 +2375,10 @@ int main()
 			cout<<S[0]<<" "<<S[2]<<" "<<S[1]<<" "<<S[3]<<" "<<S[5]<<" "<<S[4]<<endl;
 			//cout<<"After AI the move "<<S[0]<<" "<<S[2]<<" "<<S[1]<<" "<<S[3]<<" "<<S[5]<<" "<<S[4];
 			oneMove(AImove, ourBoard);
-			//fout<<ourBoard.prints();
-			time_spent += (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - begin)).count();
+			////fout<<ourBoard.prints();
+			time_spent += (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - begint)).count();
 			getline (cin, command1); 
-			//fout<<"After user the move "<<command1<<" state is "<<endl;
+			////fout<<"After user the move "<<command1<<" state is "<<endl;
 			vector<string> S1=split(command1," ");
 			command=S1[0]+(string)" "+S1[2]+(string)" "+S1[1]+(string)" "+S1[3]+(string)" "+S1[5]+(string)" "+S1[4];
 			oneMove(command, ourBoard);

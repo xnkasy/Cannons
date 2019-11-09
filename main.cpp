@@ -2355,7 +2355,7 @@ int main()
 			if(num_moves==0)
 				AImove="S 7 4 M 6 3";
 			else if(num_moves<=3)
-			 	AImove=select_move(ourBoard, 3, false, false);
+			 	AImove=select_move(ourBoard, 4, false, false);
 			else if(time_spent>=85000)
 			 	AImove=select_move(ourBoard, 3, false, false);
 			else if(time_spent>=75000){

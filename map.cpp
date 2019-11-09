@@ -2187,7 +2187,7 @@ int max_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 		
 		alpha=max>alpha?max:alpha;
 		if (alpha>=beta){
-			fout<<"pruned max at depth "<<depth<<"with value "<<alpha<<" and "<<beta<<endl;
+			//fout<<"pruned max at depth "<<depth<<"with value "<<alpha<<" and "<<beta<<endl;
 			break;
 
 		} 

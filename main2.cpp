@@ -23,7 +23,7 @@ enum move_type
     bomb_townhall=11,
     kill_townhall=10
 };
-#define N 8
+#define N 10
 #define M 8
 std::chrono::time_point<std::chrono::system_clock> begint;
 std::chrono::time_point<std::chrono::system_clock> begintt;
@@ -38,14 +38,14 @@ ofstream fout("output2.txt");
 // };
 //first is soldiers, then cannons, then unoccupiedcannon hits, then occupiedcannon hits, then townhall hits, then townhalls
 int parameters[]={6, 1, 1, 2, 50, 500, 0};
-vector<state> seedVec(N, unoccupied);
+vector<state> seedVec(M, unoccupied);
 class CannonBoard
 {
 	vector< vector<state> > board;
 	
 	public:
 	string sig="";
-	CannonBoard(): board(M, seedVec)
+	CannonBoard(): board(N, seedVec)
 	{
 		for(int i=0;i<N;i++){
 			for(int j=0;j<M;++j){
@@ -2319,18 +2319,18 @@ int main()
 			//  	AImove=select_move(ourBoard, 3, true, true);
 			// else 
 			if(num_moves<=3)
-				AImove=select_move(ourBoard, 4, true, true);
+				AImove=select_move(ourBoard, 2, true, true);
 			if(time_spent>=88000)
-			 	AImove=select_move(ourBoard, 4, true, true);
+			 	AImove=select_move(ourBoard, 2, true, true);
 			else if(time_spent>=80000){
-				AImove=select_move(ourBoard, 4, true, true);
+				AImove=select_move(ourBoard, 2, true, true);
 				////fout<<time_spent<<" 1"<<endl;
 			}
 			// else if (soldiers<3){
 			// 	AImove=select_move(ourBoard, 5, true, true);
 			// }
 			else {
-			 	AImove=select_move(ourBoard, 5, true, true);
+			 	AImove=select_move(ourBoard, 2, true, true);
 			 	////fout<<time_spent<<" 2"<<endl;
 			 }
 			 vector<string> S=split(AImove," ");
@@ -2358,18 +2358,18 @@ int main()
 			if(num_moves==0)
 				AImove="S 7 4 M 6 3";
 			else if(num_moves<=4)
-			 	AImove=select_move(ourBoard, 5, false, false);
+			 	AImove=select_move(ourBoard, 2, false, false);
 			else if(time_spent>=88000)
-			 	AImove=select_move(ourBoard, 4, false, false);
+			 	AImove=select_move(ourBoard, 2, false, false);
 			else if(time_spent>=80000){
-				AImove=select_move(ourBoard, 4, false, false);
+				AImove=select_move(ourBoard, 2, false, false);
 				////fout<<time_spent<<" 1"<<endl;
 			}
 			// else if (soldiers<3){
 			// 	AImove=select_move(ourBoard, 5, true, true);
 			// }
 			else{
-			 	AImove=select_move(ourBoard, 5, false, false);
+			 	AImove=select_move(ourBoard, 2, false, false);
 			 	////fout<<time_spent<<" 2"<<endl;
 			}
 

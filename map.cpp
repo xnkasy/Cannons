@@ -2168,7 +2168,7 @@ int max_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 	if(depth==0)
 		return present.evaluate(white);
 	if(successors.size()==0)
-		return present.evaluate(white);
+		return INT_MIN;
 	for(auto it=successors.begin();it!=successors.end();it++){
 		int minVal;
 		if(depth==1){
@@ -2211,7 +2211,7 @@ int min_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 	if(depth==0)
 		return present.evaluate(white);
 	if(successors.size()==0)
-		return present.evaluate(white);
+		return INT_MIN;
 	for(auto it=successors.begin();it!=successors.end();it++){
 
 		int maxVal;
@@ -2317,7 +2317,7 @@ int main()
 			//  	AImove=select_move(ourBoard, 3, true, true);
 			// else 
 			if(num_moves<=4)
-				AImove=select_move(ourBoard, 5, true, true);
+				AImove=select_move(ourBoard, 4, true, true);
 			if(time_spent>=105000)
 			 	AImove=select_move(ourBoard, 4, true, true);
 			else if(time_spent>=75000){
@@ -2355,7 +2355,7 @@ int main()
 			if(num_moves==0)
 				AImove="S 7 4 M 6 3";
 			else if(num_moves<=4)
-			 	AImove=select_move(ourBoard, 5, false, false);
+			 	AImove=select_move(ourBoard, 4, false, false);
 			else if(time_spent>=105000)
 			 	AImove=select_move(ourBoard, 4, false, false);
 			else if(time_spent>=75000){

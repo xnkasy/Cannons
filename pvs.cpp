@@ -2157,7 +2157,20 @@ string select_move(CannonBoard present,  int depth, bool white, bool who)
 	return toRet;
 
 }
-
+/*function pvs(node, depth, α, β, color) is
+    if depth = 0 or node is a terminal node then
+        return color × the heuristic value of node
+    for each child of node do
+        if child is first child then
+            score := −pvs(child, depth − 1, −β, −α, −color)
+        else
+            score := −pvs(child, depth − 1, −α − 1, −α, −color) (* search with a null window *)
+            if α < score < β then
+                score := −pvs(child, depth − 1, −β, −score, −color) (* if it failed high, do a full re-search *)
+        α := max(α, score)
+        if α ≥ β then
+            break (* beta cut-off *)
+    return α*/
 int max_value_action(CannonBoard present, int depth, bool white, int alpha, int beta, bool who)
 {
 	//cout<<"max value action before possibleStates with depth "<<depth<<endl;
@@ -2321,7 +2334,7 @@ int main()
 			if(time_spent>=85000)
 			 	AImove=select_move(ourBoard, 3, true, true);
 			else if(time_spent>=75000){
-				AImove=select_move(ourBoard, 4, true, true);
+				AImove=select_move(ourBoard, 3, true, true);
 				////fout<<time_spent<<" 1"<<endl;
 			}
 			// else if (soldiers<3){
@@ -2359,14 +2372,14 @@ int main()
 			else if(time_spent>=85000)
 			 	AImove=select_move(ourBoard, 3, false, false);
 			else if(time_spent>=75000){
-				AImove=select_move(ourBoard, 4, false, false);
+				AImove=select_move(ourBoard, 3, false, false);
 				////fout<<time_spent<<" 1"<<endl;
 			}
 			// else if (soldiers<3){
 			// 	AImove=select_move(ourBoard, 5, true, true);
 			// }
 			else{
-			 	AImove=select_move(ourBoard, 4, false, false);
+			 	AImove=select_move(ourBoard, 3, false, false);
 			 	////fout<<time_spent<<" 2"<<endl;
 			}
 

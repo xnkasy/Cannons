@@ -26,7 +26,7 @@ enum move_type
 std::chrono::time_point<std::chrono::system_clock> begint;
 std::chrono::time_point<std::chrono::system_clock> begintt;
 // clock_t begin;
-ofstream fout("output2.txt");
+ofstream fout("outputn.txt");
 // enum cannontype
 // {
 // 	vertical=0,
@@ -35,7 +35,7 @@ ofstream fout("output2.txt");
 // 	ldiag=3
 // };
 //first is soldiers, then cannons, then unoccupiedcannon hits, then occupiedcannon hits, then townhall hits, then townhalls
-int parameters[]={6, 1, 1, 2, 50, 500, 0};
+int parameters[]={100, 1, 1, 2, 50, 500, 0};
 vector<state> seedVec(8, unoccupied);
 class CannonBoard
 {
@@ -2168,7 +2168,7 @@ int max_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 	if(depth==0)
 		return present.evaluate(white);
 	if(successors.size()==0)
-		return INT_MIN;
+		return 0;
 	for(auto it=successors.begin();it!=successors.end();it++){
 		int minVal;
 		if(depth==1){
@@ -2211,7 +2211,7 @@ int min_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 	if(depth==0)
 		return present.evaluate(white);
 	if(successors.size()==0)
-		return INT_MIN;
+		return 0;
 	for(auto it=successors.begin();it!=successors.end();it++){
 
 		int maxVal;
@@ -2234,7 +2234,7 @@ int min_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 		beta=min<beta?min:beta;
 		
 		if (alpha>=beta){
-			fout<<"pruned min at depth "<<depth<<"with value "<<alpha<<" and "<<beta<<endl;
+			//fout<<"pruned min at depth "<<depth<<"with value "<<alpha<<" and "<<beta<<endl;
 			break;
 
 		} 
@@ -2292,7 +2292,7 @@ int main()
 	else
 		white=true;
 	int num_moves=0;
-	long time_spent =0.0;
+	float time_spent =0.0;
 	
 	if(white){
 		while(true){
@@ -2316,12 +2316,17 @@ int main()
 			// else if(num_moves<2)
 			//  	AImove=select_move(ourBoard, 3, true, true);
 			// else 
-			if(num_moves<=4)
+			if(num_moves==0)
+				//AImove="S 0 3 M 1 4";
+				AImove=select_move(ourBoard, 6, true, true);
+			else if(num_moves<=4)
 				AImove=select_move(ourBoard, 4, true, true);
-			if(time_spent>=105000)
-			 	AImove=select_move(ourBoard, 4, true, true);
-			else if(time_spent>=75000){
-				AImove=select_move(ourBoard, 5, true, true);
+			else if(time_spent>=85000)
+			 	AImove=select_move(ourBoard, 1, true, true);
+			 else if(time_spent>=80000)
+			 	AImove=select_move(ourBoard, 3, true, true);
+			else if(time_spent>=70000){
+				AImove=select_move(ourBoard, 4, true, true);
 				////fout<<time_spent<<" 1"<<endl;
 			}
 			// else if (soldiers<3){
@@ -2333,6 +2338,7 @@ int main()
 			 }
 			 vector<string> S=split(AImove," ");
 			 cout<<S[0]<<" "<<S[2]<<" "<<S[1]<<" "<<S[3]<<" "<<S[5]<<" "<<S[4]<<endl;
+			 fout<<"!!!!After AI the move "<<S[0]<<" "<<S[2]<<" "<<S[1]<<" "<<S[3]<<" "<<S[5]<<" "<<S[4]<<endl;
 			 oneMove(AImove, ourBoard);
 			 num_moves++;
 			 time_spent += (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - begint)).count();
@@ -2353,13 +2359,18 @@ int main()
 			// }
 			string AImove;
 			if(num_moves==0)
-				AImove="S 7 4 M 6 3";
+				AImove="S 7 0 M 4 0";
+				//AImove=select_move(ourBoard, 6, false, false);
+			//else if(num_moves==1)
+				//AImove="S 6 4 M 5 3"; 		//S 5 4 M 4 4		
 			else if(num_moves<=4)
 			 	AImove=select_move(ourBoard, 4, false, false);
-			else if(time_spent>=105000)
-			 	AImove=select_move(ourBoard, 4, false, false);
-			else if(time_spent>=75000){
-				AImove=select_move(ourBoard, 5, false, false);
+			else if(time_spent>=85000)
+			 	AImove=select_move(ourBoard, 1, false, false);
+			 else if(time_spent>=80000)
+			 	AImove=select_move(ourBoard, 3, false, false);
+			else if(time_spent>=70000){
+				AImove=select_move(ourBoard, 4, false, false);
 				////fout<<time_spent<<" 1"<<endl;
 			}
 			// else if (soldiers<3){
@@ -2373,9 +2384,9 @@ int main()
 			vector<string> S=split(AImove," ");
 			 
 			cout<<S[0]<<" "<<S[2]<<" "<<S[1]<<" "<<S[3]<<" "<<S[5]<<" "<<S[4]<<endl;
-			//cout<<"After AI the move "<<S[0]<<" "<<S[2]<<" "<<S[1]<<" "<<S[3]<<" "<<S[5]<<" "<<S[4];
+			fout<<"!!!!!!!!After AI the move "<<S[0]<<" "<<S[2]<<" "<<S[1]<<" "<<S[3]<<" "<<S[5]<<" "<<S[4]<<endl;
 			oneMove(AImove, ourBoard);
-			////fout<<ourBoard.prints();
+			fout<<ourBoard.prints();
 			time_spent += (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - begint)).count();
 			getline (cin, command1); 
 			////fout<<"After user the move "<<command1<<" state is "<<endl;

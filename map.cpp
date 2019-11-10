@@ -35,7 +35,7 @@ ofstream fout("outputn.txt");
 // 	ldiag=3
 // };
 //first is soldiers, then cannons, then unoccupiedcannon hits, then occupiedcannon hits, then townhall hits, then townhalls
-int parameters[]={100, 1, 1, 2, 50, 500, 0};
+int parameters[]={45, 1, 1, 2, 50, 500, 0};
 vector<state> seedVec(8, unoccupied);
 class CannonBoard
 {
@@ -2169,7 +2169,14 @@ int max_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 		return present.evaluate(white);
 	if(successors.size()==0)
 		return 0;
+	int i=0;
 	for(auto it=successors.begin();it!=successors.end();it++){
+		if(successors.size()>15)
+		{
+			i++;
+			if(i>15)
+				break;
+		}
 		int minVal;
 		if(depth==1){
 			//cout<<"went all the way max, value given is"<<it->evaluate(white)<<endl;
@@ -2205,14 +2212,21 @@ int min_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 {
 	//cout<<"min value action before possibleStates with depth "<<depth<<endl;
 	vector<CannonBoard> successors = present.possibleStates(who);
-	//cout<<"min value action after possibleStates with depth "<<depth<<endl;
+	fout<<successors.size()<<" "<<depth<<endl;
 	int min=INT_MAX;
 	CannonBoard best_child;
 	if(depth==0)
 		return present.evaluate(white);
 	if(successors.size()==0)
 		return 0;
+	int i=0;
 	for(auto it=successors.begin();it!=successors.end();it++){
+		if(successors.size()>15)
+		{
+			i++;
+			if(i>15)
+				break;
+		}
 
 		int maxVal;
 		int temp;
@@ -2238,11 +2252,7 @@ int min_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 			break;
 
 		} 
-		
-
-
-	}
-	
+	}	
 	return min;
 }
 void oneMove(string command, CannonBoard &board)
@@ -2317,15 +2327,15 @@ int main()
 			//  	AImove=select_move(ourBoard, 3, true, true);
 			// else 
 			if(num_moves==0)
-				//AImove="S 0 3 M 1 4";
-				AImove=select_move(ourBoard, 6, true, true);
-			else if(num_moves<=4)
+				AImove="S 0 3 M 3 3";
+				//AImove=select_move(ourBoard, 6, true, true);
+			else if(num_moves<=3)
 				AImove=select_move(ourBoard, 4, true, true);
-			else if(time_spent>=85000)
-			 	AImove=select_move(ourBoard, 1, true, true);
+			// else if(time_spent>=85000)
+			//  	AImove=select_move(ourBoard, 1, true, true);
 			 else if(time_spent>=80000)
-			 	AImove=select_move(ourBoard, 3, true, true);
-			else if(time_spent>=70000){
+			 	AImove=select_move(ourBoard, 2, true, true);
+			else if(time_spent>=60000){
 				AImove=select_move(ourBoard, 4, true, true);
 				////fout<<time_spent<<" 1"<<endl;
 			}
@@ -2333,12 +2343,12 @@ int main()
 			// 	AImove=select_move(ourBoard, 5, true, true);
 			// }
 			else {
-			 	AImove=select_move(ourBoard, 5, true, true);
+			 	AImove=select_move(ourBoard, 6, true, true);
 			 	////fout<<time_spent<<" 2"<<endl;
 			 }
 			 vector<string> S=split(AImove," ");
 			 cout<<S[0]<<" "<<S[2]<<" "<<S[1]<<" "<<S[3]<<" "<<S[5]<<" "<<S[4]<<endl;
-			 fout<<"!!!!After AI the move "<<S[0]<<" "<<S[2]<<" "<<S[1]<<" "<<S[3]<<" "<<S[5]<<" "<<S[4]<<endl;
+			 //	`fout<<"!!!!After AI the move "<<S[0]<<" "<<S[2]<<" "<<S[1]<<" "<<S[3]<<" "<<S[5]<<" "<<S[4]<<endl;
 			 oneMove(AImove, ourBoard);
 			 num_moves++;
 			 time_spent += (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - begint)).count();
@@ -2363,13 +2373,13 @@ int main()
 				//AImove=select_move(ourBoard, 6, false, false);
 			//else if(num_moves==1)
 				//AImove="S 6 4 M 5 3"; 		//S 5 4 M 4 4		
-			else if(num_moves<=4)
+			else if(num_moves<=3)
 			 	AImove=select_move(ourBoard, 4, false, false);
-			else if(time_spent>=85000)
-			 	AImove=select_move(ourBoard, 1, false, false);
+			// else if(time_spent>=85000)
+			//  	AImove=select_move(ourBoard, 1, false, false);
 			 else if(time_spent>=80000)
-			 	AImove=select_move(ourBoard, 3, false, false);
-			else if(time_spent>=70000){
+			 	AImove=select_move(ourBoard, 2, false, false);
+			else if(time_spent>=60000){
 				AImove=select_move(ourBoard, 4, false, false);
 				////fout<<time_spent<<" 1"<<endl;
 			}
@@ -2377,7 +2387,7 @@ int main()
 			// 	AImove=select_move(ourBoard, 5, true, true);
 			// }
 			else{
-			 	AImove=select_move(ourBoard, 5, false, false);
+			 	AImove=select_move(ourBoard, 6, false, false);
 			 	////fout<<time_spent<<" 2"<<endl;
 			}
 

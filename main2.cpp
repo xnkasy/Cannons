@@ -23,7 +23,7 @@ enum move_type
     bomb_townhall=11,
     kill_townhall=10
 };
-#define N 10
+#define N 8
 #define M 8
 std::chrono::time_point<std::chrono::system_clock> begint;
 std::chrono::time_point<std::chrono::system_clock> begintt;
@@ -37,7 +37,7 @@ ofstream fout("output2.txt");
 // 	ldiag=3
 // };
 //first is soldiers, then cannons, then unoccupiedcannon hits, then occupiedcannon hits, then townhall hits, then townhalls
-int parameters[]={6, 1, 1, 2, 50, 500, 0};
+int parameters[]={45, 1, 1, 2, 50, 500, 0};
 vector<state> seedVec(M, unoccupied);
 class CannonBoard
 {
@@ -111,7 +111,7 @@ class CannonBoard
 		int sum=0;
 		int p[]={2,3,7,11,13,19,23};
 	
-			for(int j=0;j<8;++j)
+			for(int j=0;j<8;++j)   //change here ?
 			{
 				sum=sum+p[j]*access(j, 8-j);
 				
@@ -2170,8 +2170,15 @@ int max_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 	if(depth==0)
 		return present.evaluate(white);
 	if(successors.size()==0)
-		return INT_MIN;
+		return 0;
+	int i=0;
 	for(auto it=successors.begin();it!=successors.end();it++){
+		if(successors.size()>15)
+		{
+			i++;
+			if(i>15)
+				break;
+		}
 		int minVal;
 		if(depth==1){
 			//cout<<"went all the way max, value given is"<<it->evaluate(white)<<endl;
@@ -2197,8 +2204,6 @@ int max_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 
 
 	}
-	//cout<<endl;
-	//cout<<"~~~~~~~!!!!!!!!!!!minVal chosen by maximiser is "<<max<<endl<<endl;
 	//cout<<"actual best max evaluation chosen is from depth "<<depth<<" is "<<best_child.evaluate_white()<<" and "<<best_child.evaluate_black()<<endl;
 	//best_child.print();
 	return max;
@@ -2207,14 +2212,21 @@ int min_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 {
 	//cout<<"min value action before possibleStates with depth "<<depth<<endl;
 	vector<CannonBoard> successors = present.possibleStates(who);
-	//cout<<"min value action after possibleStates with depth "<<depth<<endl;
+	fout<<successors.size()<<" "<<depth<<endl;
 	int min=INT_MAX;
 	CannonBoard best_child;
 	if(depth==0)
 		return present.evaluate(white);
 	if(successors.size()==0)
-		return INT_MIN;
+		return 0;
+	int i=0;
 	for(auto it=successors.begin();it!=successors.end();it++){
+		if(successors.size()>15)
+		{
+			i++;
+			if(i>15)
+				break;
+		}
 
 		int maxVal;
 		int temp;
@@ -2240,11 +2252,7 @@ int min_value_action(CannonBoard present, int depth, bool white, int alpha, int 
 			break;
 
 		} 
-		
-
-
-	}
-	
+	}	
 	return min;
 }
 void oneMove(string command, CannonBoard &board)
@@ -2318,19 +2326,22 @@ int main()
 			// else if(num_moves<2)
 			//  	AImove=select_move(ourBoard, 3, true, true);
 			// else 
-			if(num_moves<=3)
-				AImove=select_move(ourBoard, 2, true, true);
-			if(time_spent>=88000)
+			if(num_moves==0)
+				AImove="S 0 3 M 3 3";
+				//AImove=select_move(ourBoard, 6, true, true);
+			else if(num_moves<=3)
+				AImove=select_move(ourBoard, 4, true, true);
+			 else if(time_spent>=80000)
 			 	AImove=select_move(ourBoard, 2, true, true);
-			else if(time_spent>=80000){
-				AImove=select_move(ourBoard, 2, true, true);
+			else if(time_spent>=60000){
+				AImove=select_move(ourBoard, 4, true, true);
 				////fout<<time_spent<<" 1"<<endl;
 			}
 			// else if (soldiers<3){
 			// 	AImove=select_move(ourBoard, 5, true, true);
 			// }
 			else {
-			 	AImove=select_move(ourBoard, 2, true, true);
+			 	AImove=select_move(ourBoard, 6, true, true);
 			 	////fout<<time_spent<<" 2"<<endl;
 			 }
 			 vector<string> S=split(AImove," ");
@@ -2356,20 +2367,23 @@ int main()
 			// }
 			string AImove;
 			if(num_moves==0)
-				AImove="S 7 4 M 6 3";
-			else if(num_moves<=4)
+				AImove="S 7 0 M 4 0";	//AImove="S 9 0 M 6 0"; for 10*8 
+				//AImove=select_move(ourBoard, 6, false, false);	
+			else if(num_moves<=3)
+			 	AImove=select_move(ourBoard, 4, false, false);
+			// else if(time_spent>=85000)
+			//  	AImove=select_move(ourBoard, 1, false, false);
+			 else if(time_spent>=80000)
 			 	AImove=select_move(ourBoard, 2, false, false);
-			else if(time_spent>=88000)
-			 	AImove=select_move(ourBoard, 2, false, false);
-			else if(time_spent>=80000){
-				AImove=select_move(ourBoard, 2, false, false);
+			else if(time_spent>=60000){
+				AImove=select_move(ourBoard, 4, false, false);
 				////fout<<time_spent<<" 1"<<endl;
 			}
 			// else if (soldiers<3){
 			// 	AImove=select_move(ourBoard, 5, true, true);
 			// }
 			else{
-			 	AImove=select_move(ourBoard, 2, false, false);
+			 	AImove=select_move(ourBoard, 6, false, false);
 			 	////fout<<time_spent<<" 2"<<endl;
 			}
 
